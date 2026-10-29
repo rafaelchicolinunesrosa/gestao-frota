@@ -1,0 +1,8 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "app.web.gestao_frota_demutran.twa",
+    "sha256_cert_fingerprints": ["32:76:32:FD:2E:63:99:A7:38:E4:B5:B0:D4:66:DD:97:59:3E:6F:62:D8:E5:C1:4E:51:7C:3A:33:EF:43:A6:99"]
+  }
+}]

@@ -1,0 +1,3238 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="robots" content="noindex, nofollow">
+  <script>
+    window.startupErrors = [];
+    window.addEventListener('error', function(e) {
+      window.startupErrors.push({
+        message: e.message,
+        filename: e.filename ? e.filename.split('/').pop() : 'unknown',
+        lineno: e.lineno,
+        colno: e.colno,
+        stack: e.error ? e.error.stack : null
+      });
+
+      // Tenta limpar caches e desregistrar Service Workers para forçar a recuperação em segundo plano
+      try {
+        if ('caches' in window) {
+          caches.keys().then(function(keys) {
+            keys.forEach(function(key) { caches.delete(key); });
+          });
+        }
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistrations().then(function(regs) {
+            regs.forEach(function(r) { r.unregister(); });
+          });
+        }
+      } catch (err) {
+        console.error('Erro ao limpar cache:', err);
+      }
+
+      // Injeção vanilla imediata caso o React falhe em inicializar
+      setTimeout(function() {
+        var root = document.getElementById('root');
+        if (root && root.innerHTML.includes('Carregando Controle Operacional...')) {
+          root.innerHTML = `
+            <div class="flex items-center justify-center min-h-screen bg-[#080c14] text-white p-6 w-full">
+              <div class="text-center space-y-4 max-w-sm bg-[#1e293b]/70 backdrop-blur-md border border-rose-500/20 p-6 rounded-3xl shadow-2xl">
+                <div class="inline-flex p-3 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-2xl mb-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-8.5 h-8.5 text-rose-400 mx-auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                </div>
+                <h2 class="text-xl font-bold font-outfit text-rose-300">Erro de Inicialização</h2>
+                <p class="text-sm text-slate-400 leading-relaxed">
+                  Ocorreu uma falha crítica ao carregar o aplicativo no navegador. Detalhes:
+                </p>
+                <div class="text-left bg-rose-950/40 border border-rose-500/30 rounded-xl p-3.5 mt-3 text-xs font-mono text-rose-300 overflow-x-auto space-y-1">
+                  <div class="font-bold text-sm">❌ ${e.message}</div>
+                  <div class="opacity-90">Arquivo: <span class="text-white font-bold">${e.filename ? e.filename.split('/').pop() : 'unknown'}</span> (Linha ${e.lineno}:${e.colno})</div>
+                </div>
+                <button onclick="window.location.reload()" class="w-full py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-sm font-semibold transition-all mt-4 shadow-lg border border-slate-700/50">
+                  Recarregar Página
+                </button>
+              </div>
+            </div>
+          `;
+        }
+      }, 300);
+    });
+  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Frota DEMUTRAN</title>
+
+  <!-- PWA Suporte Completo (iOS e Android) -->
+  <link rel="manifest" href="./manifest.json">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Frota DEMUTRAN">
+  <link rel="apple-touch-icon" href="./icon.png">
+  <meta name="theme-color" content="#080c14">
+
+  <!-- Registro do Service Worker PWA e Captura do Prompt de Instalação -->
+  <script>
+    window.deferredPrompt = null;
+    window.addEventListener('beforeinstallprompt', function(e) {
+      // Impede que o Chrome exiba o prompt automático imediatamente
+      e.preventDefault();
+      // Salva o evento para ser disparado manualmente
+      window.deferredPrompt = e;
+      // Dispara um evento personalizado para notificar o React
+      window.dispatchEvent(new CustomEvent('pwa-prompt-available'));
+    });
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('./sw.js')
+          .then(function(reg) {
+            console.log('Service Worker registrado com sucesso! Escopo:', reg.scope);
+          })
+          .catch(function(err) {
+            console.warn('Falha ao registrar o Service Worker:', err);
+          });
+      });
+    }
+  </script>
+  
+  <!-- Fontes Premium do Google (Outfit e Inter) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS para Estilização Instantânea e Responsiva -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Script para customizações de tema do Tailwind (Sleek Dark Navy / Glassmorphism) -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            outfit: ['Outfit', 'sans-serif'],
+          },
+          colors: {
+            navy: {
+              50: '#f0f3f9',
+              100: '#dde4f2',
+              800: '#1e293b',
+              900: '#0f172a',
+              950: '#030712'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- Estilos Adicionais para Vidro Fosco, Animações e Fluidez -->
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0b0f19;
+      color: #f3f4f6;
+      overscroll-behavior-y: contain; /* Evita pull-to-refresh em PWAs */
+    }
+    .glass-card {
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glass-input {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+    }
+    .glass-input:focus {
+      border-color: #6366f1;
+      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+    }
+    .btn-tactile:active {
+      transform: scale(0.96);
+    }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+
+  <!-- React 18 e ReactDOM 18 (Produção) -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+
+  <!-- Babel Standalone para transpilar JSX no navegador em tempo real -->
+  <script src="https://unpkg.com/@babel/standalone@7/babel.min.js"></script>
+
+  <!-- Biblioteca de Ícones Lucide -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="min-h-screen flex flex-col justify-between overflow-x-hidden antialiased">
+
+  <div id="root" class="flex flex-col min-h-screen w-full max-w-md mx-auto relative bg-[#0b0f19] shadow-2xl">
+    <div class="flex items-center justify-center min-h-screen">
+      <div class="text-center">
+        <div class="inline-block w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+        <p class="mt-4 text-gray-400 font-medium text-sm">Carregando Controle Operacional...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase SDK v8 (Compat) -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+
+  <script src="./firebase.js?v=1.1.2"></script>
+
+  <!-- Script principal em React/JSX utilizando o Babel -->
+  <script type="text/babel">
+    const firebaseApp = window.FirebaseApp || {};
+    const { 
+      listenViatura, 
+      listenMateriais, 
+      getAgentes, 
+      loginAgenteAnomino, 
+      abrirChecklist, 
+      listenChecklist,
+      registrarMovimentacao,
+      alterarIntegrantes,
+      fecharChecklist,
+      adicionarMaterialCustom,
+      listenTodosChecklists,
+      listenTodasViaturas,
+      uploadFoto,
+      isDemoMode,
+      verificarDispositivo,
+      registrarDispositivoPeloCodigo
+    } = firebaseApp;
+
+    const { useState, useEffect, useRef } = React;
+
+    class ErrorBoundary extends React.Component {
+      constructor(props) {
+        super(props);
+        this.state = { hasError: false, error: null, errorInfo: null };
+      }
+
+      componentDidCatch(error, errorInfo) {
+        this.setState({
+          hasError: true,
+          error: error,
+          errorInfo: errorInfo
+        });
+        console.error("React Error Boundary caught:", error, errorInfo);
+      }
+
+      render() {
+        if (this.state.hasError) {
+          return (
+            <div className="flex items-center justify-center p-6 w-full flex-grow">
+              <div className="text-center space-y-4 max-w-sm glass-card p-6 rounded-3xl border border-rose-500/20 shadow-2xl">
+                <div className="inline-flex p-3 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-2xl mb-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-8.5 h-8.5 text-rose-400 mx-auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                </div>
+                <h2 className="text-xl font-bold font-outfit text-rose-300">Erro na Interface</h2>
+                <p className="text-sm text-slate-400 leading-relaxed">
+                  Ocorreu uma falha ao renderizar a tela. Detalhes técnicos:
+                </p>
+                <div className="text-left bg-rose-950/40 border border-rose-500/30 rounded-xl p-3.5 mt-3 text-xs font-mono text-rose-300 overflow-x-auto space-y-1">
+                  <div className="font-bold text-sm">❌ {this.state.error && this.state.error.message}</div>
+                  {this.state.error && this.state.error.stack && (
+                    <pre className="text-2xs opacity-75 mt-1.5 whitespace-pre-wrap leading-tight font-mono max-h-32 no-scrollbar overflow-y-auto">
+                      {this.state.error.stack.substring(0, 300)}...
+                    </pre>
+                  )}
+                </div>
+                <button onClick={() => window.location.reload()} className="w-full py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-sm font-semibold transition-all mt-4 shadow-lg border border-slate-700/50">
+                  Recarregar Página
+                </button>
+              </div>
+            </div>
+          );
+        }
+
+        return this.props.children;
+      }
+    }
+
+    // ==========================================
+    // TELA DE DISPOSITIVO NÃO AUTORIZADO
+    // ==========================================
+    function ScreenDispositivoBloqueado({ deviceUuid }) {
+      const [nomeAparelho, setNomeAparelho] = useState('');
+      const [codigoAtivacao, setCodigoAtivacao] = useState('');
+      const [loading, setLoading] = useState(false);
+      const [erro, setErro] = useState('');
+      const [copiado, setCopiado] = useState(false);
+      const [sucesso, setSucesso] = useState(false);
+
+      useEffect(() => {
+        if (typeof lucide !== 'undefined') {
+          lucide.createIcons();
+        }
+      }, [erro, copiado, sucesso]);
+
+      const handleCopiarId = () => {
+        navigator.clipboard.writeText(deviceUuid);
+        setCopiado(true);
+        setTimeout(() => setCopiado(false), 2000);
+      };
+
+      const handleAtivar = async (e) => {
+        e.preventDefault();
+        setErro('');
+
+        if (!nomeAparelho.trim()) {
+          setErro('Por favor, informe uma identificação para este aparelho.');
+          return;
+        }
+
+        if (codigoAtivacao.trim().length !== 6 || isNaN(codigoAtivacao.trim())) {
+          setErro('O código de ativação deve possuir exatamente 6 números.');
+          return;
+        }
+
+        setLoading(true);
+        try {
+          await registrarDispositivoPeloCodigo(deviceUuid, codigoAtivacao.trim(), nomeAparelho.trim());
+          setSucesso(true);
+          setTimeout(() => {
+            window.location.reload();
+          }, 1500);
+        } catch (err) {
+          setLoading(false);
+          setErro(err.message || 'Código de ativação inválido ou expirado.');
+        }
+      };
+
+      if (sucesso) {
+        return (
+          <div className="min-h-screen flex items-center justify-center p-6 bg-[#080c14] text-white">
+            <div className="text-center space-y-6 max-w-sm glass-card p-8 rounded-3xl border border-emerald-500/20 shadow-2xl">
+              <div className="inline-flex p-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-3xl shadow-lg shadow-emerald-500/10 animate-bounce">
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              </div>
+              <div className="space-y-2">
+                <h2 className="text-2xl font-black font-outfit text-emerald-300">Aparelho Autorizado!</h2>
+                <p className="text-sm text-slate-400 leading-relaxed">
+                  Este dispositivo foi cadastrado com sucesso. Liberando acesso operacional...
+                </p>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      return (
+        <div className="min-h-screen flex items-center justify-center p-4 bg-[#080c14] text-white">
+          <div className="w-full max-w-sm glass-card rounded-3xl p-6 space-y-6 shadow-2xl border border-slate-900">
+            
+            <div className="text-center space-y-3">
+              <div className="inline-flex p-3 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-2xl animate-pulse shadow-lg shadow-rose-500/5">
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="9" x2="12" y2="15"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              </div>
+              <h1 className="text-2xl font-extrabold font-outfit text-white tracking-tight">Acesso Bloqueado</h1>
+              <p className="text-slate-400 text-xs leading-relaxed max-w-[280px] mx-auto">
+                Este dispositivo móvel ainda não está autorizado para operar no Frota DEMUTRAN.
+              </p>
+            </div>
+
+            <div className="p-4 bg-slate-900/60 border border-slate-800/80 rounded-2xl space-y-2">
+              <div className="flex justify-between items-center text-3xs font-bold text-slate-500 uppercase tracking-widest">
+                <span>ID do Aparelho (UUID)</span>
+                {copiado ? (
+                  <span className="text-emerald-400">Copiado!</span>
+                ) : (
+                  <button onClick={handleCopiarId} className="text-indigo-400 hover:text-indigo-300 font-bold transition-all lowercase">copiar</button>
+                )}
+              </div>
+              <div className="font-mono text-2xs text-slate-300 break-all select-all">
+                {deviceUuid}
+              </div>
+            </div>
+
+            <form onSubmit={handleAtivar} className="space-y-4">
+              <div>
+                <label className="block text-3xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Identificação do Aparelho*</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Ex: Celular Base - Moto 03"
+                  value={nomeAparelho}
+                  onChange={(e) => setNomeAparelho(e.target.value)}
+                  className="glass-input w-full px-4 py-3 rounded-xl text-xs focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-3xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Código de Ativação da Base*</label>
+                <input
+                  type="text"
+                  required
+                  pattern="[0-9]*"
+                  inputMode="numeric"
+                  maxLength={6}
+                  placeholder="Ex: 184932"
+                  value={codigoAtivacao}
+                  onChange={(e) => setCodigoAtivacao(e.target.value.replace(/\D/g, ''))}
+                  className="glass-input w-full px-4 py-3.5 rounded-xl text-center text-xl font-bold font-outfit tracking-widest text-indigo-300 focus:outline-none focus:border-indigo-500"
+                />
+                <span className="text-4xs text-slate-500 mt-1 block text-center">Código de 6 dígitos gerado no painel do supervisor.</span>
+              </div>
+
+              {erro && (
+                <div className="p-3.5 bg-rose-500/10 border border-rose-500/20 text-rose-300 text-2xs rounded-xl flex items-start gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                  <span>{erro}</span>
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="btn-tactile w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white rounded-xl text-xs font-bold tracking-wider transition-all flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20 disabled:opacity-50"
+              >
+                {loading ? (
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                ) : (
+                  <>
+                    <span>SOLICITAR AUTORIZAÇÃO</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                  </>
+                )}
+              </button>
+            </form>
+          </div>
+        </div>
+      );
+    }
+
+    function App() {
+      const [screen, setScreen] = useState('acesso');
+      const [loading, setLoading] = useState(false);
+      
+      const [vtrTipo, setVtrTipo] = useState('VTR');
+      const [vtrNumero, setVtrNumero] = useState('');
+      const [prefixoAtivo, setPrefixoAtivo] = useState('');
+      const [viaturaData, setViaturaData] = useState(null);
+      const [checklistAtivo, setChecklistAtivo] = useState(null);
+
+      const [listaAgentes, setListaAgentes] = useState([]);
+      const [listaMateriais, setListaMateriais] = useState([]);
+      const [listaViaturas, setListaViaturas] = useState([]);
+
+      // Controle de segurança e autorização do dispositivo
+      const [deviceStatus, setDeviceStatus] = useState('loading'); // 'loading' | 'authorized' | 'unauthorized'
+      const [deviceData, setDeviceData] = useState(null);
+      const deviceUuidRef = useRef('');
+      const [authError, setAuthError] = useState(null);
+
+      useEffect(() => {
+        let active = true;
+        let unsubDev = null;
+        let unsubAgentes = null;
+        let unsubMat = null;
+        let unsubViaturas = null;
+        let timer = null;
+
+        function startAuthAndListeners() {
+          loginAgenteAnomino()
+            .then(user => {
+              if (!active) return;
+              console.log("Sessão segura inicializada:", user.uid);
+              
+              // 1. Iniciar verificação do dispositivo
+              let uuid = localStorage.getItem('device_uuid');
+              if (!uuid) {
+                uuid = 'dev_' + Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 10);
+                localStorage.setItem('device_uuid', uuid);
+              }
+              deviceUuidRef.current = uuid;
+
+              unsubDev = verificarDispositivo(uuid, (data) => {
+                if (!active) return;
+                if (data && data.status === 'autorizado') {
+                  setDeviceStatus('authorized');
+                  setDeviceData(data);
+                } else {
+                  setDeviceStatus('unauthorized');
+                  setDeviceData(null);
+                }
+              });
+
+              // 2. Iniciar outros listeners do banco de dados
+              unsubAgentes = getAgentes((agentes) => {
+                if (active) setListaAgentes(agentes);
+              });
+
+              unsubMat = listenMateriais((materiais) => {
+                if (active) setListaMateriais(materiais);
+              });
+
+              unsubViaturas = listenTodasViaturas((viaturas) => {
+                if (active) setListaViaturas(viaturas);
+              });
+            })
+            .catch(err => {
+              if (!active) return;
+              console.error("Erro ao inicializar sessão segura:", err);
+              setAuthError({
+                code: err.code || 'erro-autenticacao',
+                message: err.message || 'Não foi possível estabelecer login anônimo com o Firebase.'
+              });
+              setDeviceStatus('unauthorized'); // Libera o estado de loading para exibir o erro
+            });
+        }
+
+        if (!window.FirebaseApp || !window.FirebaseApp.verificarDispositivo) {
+          timer = setInterval(() => {
+            if (window.FirebaseApp && window.FirebaseApp.verificarDispositivo) {
+              clearInterval(timer);
+              startAuthAndListeners();
+            }
+          }, 100);
+        } else {
+          startAuthAndListeners();
+        }
+
+        return () => {
+          active = false;
+          if (timer) clearInterval(timer);
+          if (unsubDev) unsubDev();
+          if (unsubAgentes) unsubAgentes();
+          if (unsubMat) unsubMat();
+          if (unsubViaturas) unsubViaturas();
+        };
+      }, []);
+
+      // Identificar agentes em uso em OUTRAS viaturas
+      const agentesDisponiveis = React.useMemo(() => {
+        const nomesEmUso = new Set();
+        listaViaturas.forEach(vtr => {
+          if (vtr.prefixo !== prefixoAtivo && vtr.status_atual === 'em_operacao' && vtr.equipe_atual && Array.isArray(vtr.equipe_atual)) {
+            vtr.equipe_atual.forEach(member => {
+              if (member && member.nome) {
+                nomesEmUso.add(member.nome.trim().toLowerCase());
+              }
+            });
+          }
+        });
+        return listaAgentes.filter(ag => !nomesEmUso.has(ag.nome.trim().toLowerCase()));
+      }, [listaAgentes, listaViaturas, prefixoAtivo]);
+
+      useEffect(() => {
+        if (typeof lucide !== 'undefined') {
+          lucide.createIcons();
+        }
+      }, [screen, loading, listaMateriais, listaAgentes, listaViaturas]);
+
+      useEffect(() => {
+        if (!window.FirebaseApp || !prefixoAtivo) return;
+
+        const unsubVtr = listenViatura(prefixoAtivo, (data) => {
+          setViaturaData(data);
+          
+          if (data && data.status_atual === 'em_operacao' && data.id_checklist_atual) {
+            setChecklistAtivo(data.id_checklist_atual);
+            setScreen('servico');
+          } else if (data && data.status_atual === 'disponivel' && screen === 'servico') {
+            setScreen('acesso');
+            setChecklistAtivo(null);
+          }
+        });
+
+        return () => unsubVtr();
+      }, [prefixoAtivo]);
+
+      const [checklistData, setChecklistData] = useState(null);
+      useEffect(() => {
+        if (!window.FirebaseApp || !checklistAtivo) return;
+
+        const unsubChecklist = listenChecklist(checklistAtivo, (data) => {
+          setChecklistData(data);
+        });
+
+        return () => unsubChecklist();
+      }, [checklistAtivo]);
+
+      if (!window.FirebaseApp) {
+        const errorDetails = window.startupErrors && window.startupErrors.length > 0
+          ? window.startupErrors.map((err, i) => (
+              <div key={i} className="text-left bg-rose-950/40 border border-rose-500/30 rounded-xl p-3.5 mt-3 text-xs font-mono text-rose-300 overflow-x-auto space-y-1 max-h-40 no-scrollbar">
+                <div className="font-bold text-sm">❌ {err.message}</div>
+                <div className="opacity-90">Arquivo: <span className="text-white font-bold">{err.filename}</span> (Linha {err.lineno}:{err.colno})</div>
+                {err.stack && <pre className="text-2xs opacity-75 mt-1.5 whitespace-pre-wrap leading-tight font-mono">{err.stack.substring(0, 400)}...</pre>}
+              </div>
+            ))
+          : <div className="text-xs text-slate-500 mt-2">Nenhum erro de script capturado no console.</div>;
+
+        return (
+          <div className="flex items-center justify-center min-h-screen bg-[#080c14] text-white p-6">
+            <div className="text-center space-y-4 max-w-sm glass-card p-6 rounded-3xl border border-rose-500/20">
+              <div className="inline-flex p-3 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-2xl mb-2">
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 text-rose-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              </div>
+              <h2 className="text-xl font-bold font-outfit text-rose-300">Erro de Carregamento</h2>
+              <p className="text-sm text-slate-400 leading-relaxed">
+                Não foi possível inicializar os recursos do banco de dados (<code>firebase.js</code>). Certifique-se de que os arquivos estão na mesma pasta e recarregue.
+              </p>
+              {errorDetails}
+              <button onClick={() => window.location.reload()} className="w-full btn-tactile py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-sm font-semibold transition-all mt-4">
+                Recarregar Página
+              </button>
+            </div>
+          </div>
+        );
+      }
+
+      if (authError) {
+        return (
+          <div className="flex items-center justify-center min-h-screen bg-[#080c14] text-white p-6">
+            <div className="text-center space-y-4 max-w-sm glass-card p-6 rounded-3xl border border-rose-500/20 shadow-2xl">
+              <div className="inline-flex p-3 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-2xl mb-2">
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-8.5 h-8.5 text-rose-400 mx-auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              </div>
+              <h2 className="text-xl font-bold font-outfit text-rose-300">Falha de Autenticação</h2>
+              <p className="text-sm text-slate-400 leading-relaxed">
+                Não foi possível estabelecer uma sessão segura com o servidor do Firebase.
+              </p>
+              <div className="text-left bg-rose-950/40 border border-rose-500/30 rounded-xl p-3.5 mt-3 text-xs text-rose-300 space-y-2 leading-relaxed">
+                <div className="font-bold font-mono">❌ {authError.code || 'Erro desconhecido'}</div>
+                <div>{authError.message}</div>
+                {authError.code === 'auth/operation-not-allowed' && (
+                  <div className="pt-2 border-t border-rose-500/20 text-white font-medium">
+                    💡 <b>Como resolver:</b> Acesse o Console do Firebase &gt; Authentication &gt; Sign-in method (Método de login), ative o provedor <b>Anônimo (Anonymous)</b> e salve as alterações. Depois, recarregue esta página.
+                  </div>
+                )}
+              </div>
+              <button onClick={() => window.location.reload()} className="w-full btn-tactile py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-sm font-semibold transition-all mt-4 border border-slate-700/50">
+                Recarregar Página
+              </button>
+            </div>
+          </div>
+        );
+      }
+
+      if (deviceStatus === 'loading') {
+        return (
+          <div className="flex items-center justify-center min-h-screen bg-[#080c14] text-white p-6">
+            <div className="text-center space-y-4 max-w-sm glass-card p-6 rounded-3xl border border-slate-850 shadow-2xl">
+              <div className="inline-block w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+              <p className="mt-4 text-slate-400 font-medium text-sm">Verificando segurança do dispositivo...</p>
+            </div>
+          </div>
+        );
+      }
+
+      if (deviceStatus === 'unauthorized') {
+        return (
+          <ScreenDispositivoBloqueado 
+            deviceUuid={deviceUuidRef.current} 
+          />
+        );
+      }
+
+      return (
+        <div className="flex flex-col min-h-screen justify-between bg-[#080c14] relative">
+          
+          {isDemoMode && (
+            <div class="bg-amber-500/25 border-b border-amber-500/30 text-amber-300 py-1 text-center text-xs font-semibold tracking-wide flex items-center justify-center gap-1">
+              <span class="inline-block w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+              Modo de Demonstração (Banco de Dados Local)
+            </div>
+          )}
+
+          <main class="flex-grow flex flex-col p-4 pb-8 overflow-y-auto">
+            <ErrorBoundary>
+              {screen === 'acesso' && (
+                <ScreenAcesso 
+                  vtrTipo={vtrTipo}
+                  setVtrTipo={setVtrTipo}
+                  vtrNumero={vtrNumero}
+                  setVtrNumero={setVtrNumero}
+                  setPrefixoAtivo={setPrefixoAtivo}
+                  setScreen={setScreen}
+                  setLoading={setLoading}
+                  loading={loading}
+                />
+              )}
+
+              {screen === 'abertura' && viaturaData && (
+                <ScreenAbertura 
+                  prefixo={prefixoAtivo}
+                  viatura={viaturaData}
+                  listaAgentes={agentesDisponiveis}
+                  listaMateriais={listaMateriais}
+                  setChecklistAtivo={setChecklistAtivo}
+                  setScreen={setScreen}
+                  voltar={() => setScreen('acesso')}
+                />
+              )}
+
+              {screen === 'servico' && checklistData && viaturaData && (
+                <ScreenServico 
+                  prefixo={prefixoAtivo}
+                  viatura={viaturaData}
+                  checklist={checklistData}
+                  listaMateriais={listaMateriais}
+                  listaAgentes={agentesDisponiveis}
+                  setScreen={setScreen}
+                />
+              )}
+
+              {screen === 'encerramento' && checklistData && viaturaData && (
+                <ScreenEncerramento 
+                  prefixo={prefixoAtivo}
+                  viatura={viaturaData}
+                  checklist={checklistData}
+                  listaMateriais={listaMateriais}
+                  voltar={() => setScreen('servico')}
+                  finalizar={() => {
+                    setScreen('acesso');
+                    setPrefixoAtivo('');
+                    setChecklistAtivo(null);
+                  }}
+                />
+              )}
+            </ErrorBoundary>
+          </main>
+
+          <footer class="py-3 text-center text-xs text-slate-500 border-t border-slate-900 bg-[#060a10]">
+            Frota DEMUTRAN v1.0.0
+          </footer>
+        </div>
+      );
+    }
+
+    // ==========================================
+    // TELA A: ACESSO SEM SENHA
+    // ==========================================
+    function ScreenAcesso({ vtrTipo, setVtrTipo, vtrNumero, setVtrNumero, setPrefixoAtivo, setScreen, setLoading, loading }) {
+      const [erro, setErro] = useState('');
+      const [deferredPrompt, setDeferredPrompt] = useState(window.deferredPrompt);
+      const [isStandalone, setIsStandalone] = useState(false);
+
+      useEffect(() => {
+        const checkStandalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+        setIsStandalone(!!checkStandalone);
+
+        const handlePrompt = () => {
+          setDeferredPrompt(window.deferredPrompt);
+        };
+
+        window.addEventListener('pwa-prompt-available', handlePrompt);
+        return () => {
+          window.removeEventListener('pwa-prompt-available', handlePrompt);
+        };
+      }, []);
+
+      const handleInstallClick = async () => {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          setDeferredPrompt(null);
+          window.deferredPrompt = null;
+        }
+      };
+
+      const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+      const handleAcessar = async (e) => {
+        e.preventDefault();
+        setErro('');
+
+        if (!vtrNumero || isNaN(vtrNumero)) {
+          setErro('Por favor, digite apenas números para identificar a viatura.');
+          return;
+        }
+
+        const prefixo = `${vtrTipo}-${vtrNumero.trim().padStart(2, '0')}`;
+        setLoading(true);
+
+        try {
+          listenViatura(prefixo, (data) => {
+            setLoading(false);
+            if (!data) {
+              setErro(`Viatura ${prefixo} não cadastrada no sistema.`);
+              return;
+            }
+
+            if (data.status_atual === 'baixada') {
+              setErro(`⛔ Viatura ${prefixo} encontra-se indisponível (BAIXADA / FORA DE SERVIÇO).`);
+              return;
+            }
+
+            setPrefixoAtivo(prefixo);
+
+            if (data.status_atual === 'em_operacao' && data.id_checklist_atual) {
+              console.log("Viatura ativa detectada, sincronizando dispositivos...");
+              setScreen('servico');
+            } else {
+              setScreen('abertura');
+            }
+          });
+        } catch (err) {
+          setLoading(false);
+          setErro('Falha na comunicação com o banco. Tente novamente.');
+        }
+      };
+
+      return (
+        <div class="flex-grow flex flex-col justify-center max-w-sm mx-auto w-full">
+          <div class="text-center mb-8">
+            <div class="inline-flex p-3 bg-indigo-600/10 border border-indigo-500/20 text-indigo-400 rounded-2xl mb-3">
+              <i data-lucide="shield-alert" class="w-8 h-8"></i>
+            </div>
+            <h1 class="text-3xl font-extrabold font-outfit tracking-tight text-white">Frota DEMUTRAN</h1>
+            <p class="text-slate-400 text-sm mt-1">Acesso Rápido para Agentes de Trânsito</p>
+          </div>
+
+          <form onSubmit={handleAcessar} class="glass-card rounded-3xl p-6 space-y-6">
+            
+            <div>
+              <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3 text-center">Tipo de Viatura</label>
+              <div class="grid grid-cols-2 gap-4">
+                <button
+                  type="button"
+                  onClick={() => setVtrTipo('VTR')}
+                  class={`btn-tactile py-4 px-6 rounded-2xl border transition-all duration-200 flex flex-col items-center gap-2 ${
+                    vtrTipo === 'VTR' 
+                      ? 'bg-indigo-600 border-indigo-500 text-white font-bold shadow-lg shadow-indigo-600/30' 
+                      : 'bg-navy-900/60 border-slate-800 text-slate-400 font-medium hover:border-slate-700'
+                  }`}
+                >
+                  <i data-lucide="car" class="w-7 h-7"></i>
+                  <span class="text-sm">VTR (Carro)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setVtrTipo('VTM')}
+                  class={`btn-tactile py-4 px-6 rounded-2xl border transition-all duration-200 flex flex-col items-center gap-2 ${
+                    vtrTipo === 'VTM' 
+                      ? 'bg-indigo-600 border-indigo-500 text-white font-bold shadow-lg shadow-indigo-600/30' 
+                      : 'bg-navy-900/60 border-slate-800 text-slate-400 font-medium hover:border-slate-700'
+                  }`}
+                >
+                  <i data-lucide="bike" class="w-7 h-7"></i>
+                  <span class="text-sm">VTM (Moto)</span>
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Número do Veículo</label>
+              <div class="relative">
+                <span class="absolute left-4 top-1/2 -translate-y-1/2 font-bold font-outfit text-xl text-slate-500">
+                  {vtrTipo}-
+                </span>
+                <input
+                  type="text"
+                  pattern="[0-9]*"
+                  inputMode="numeric"
+                  placeholder="Ex: 12"
+                  value={vtrNumero}
+                  onChange={(e) => setVtrNumero(e.target.value.replace(/\D/g, ''))}
+                  class="glass-input w-full pl-20 pr-4 py-4 rounded-2xl text-2xl font-bold font-outfit tracking-wide text-white focus:outline-none text-left"
+                />
+              </div>
+            </div>
+
+            {erro && (
+              <div class="p-4 bg-rose-500/10 border border-rose-500/20 text-rose-300 text-sm rounded-xl flex items-start gap-2">
+                <i data-lucide="alert-circle" class="w-5 h-5 shrink-0 mt-0.5"></i>
+                <span>{erro}</span>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              class="btn-tactile w-full py-4 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white rounded-2xl text-base font-bold transition-all flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20 disabled:opacity-50"
+            >
+              {loading ? (
+                <div class="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              ) : (
+                <>
+                  <span>ACESSAR VIATURA</span>
+                  <span><i data-lucide="arrow-right" class="w-5 h-5"></i></span>
+                </>
+              )}
+            </button>
+
+          </form>
+
+          {/* Assistente de Instalação PWA */}
+          {!isStandalone && (
+            <div class="mt-6 p-4 rounded-3xl bg-slate-900/40 border border-slate-800/80 space-y-3 text-xs text-slate-300">
+              <div class="flex items-center gap-2 text-indigo-400 font-bold font-outfit uppercase tracking-wider text-2xs">
+                <svg xmlns="http://www.w3.org/2050/svg" class="w-4 h-4 text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span>Assistente de Instalação</span>
+              </div>
+              
+              {deferredPrompt ? (
+                <div class="space-y-2">
+                  <p class="text-slate-400 text-3xs leading-relaxed">
+                    Instale o app diretamente no celular. É rápido, leve e não gasta memória do aparelho.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleInstallClick}
+                    class="btn-tactile w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-md shadow-indigo-600/10"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    <span>INSTALAR COMO APLICATIVO</span>
+                  </button>
+                </div>
+              ) : isIOS ? (
+                <div class="space-y-1.5 leading-relaxed text-3xs text-slate-400">
+                  <p class="text-slate-300 font-semibold">📲 Instalação no iPhone:</p>
+                  <ol class="list-decimal list-inside space-y-1 pl-1 text-slate-400">
+                    <li>Toque no botão de <b>Compartilhar</b> (ícone <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 inline-block align-text-bottom mx-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><line x1="12" y1="2" x2="12" y2="15"/><polyline points="17 7 12 2 7 7"/></svg> na barra do Safari).</li>
+                    <li>Role a lista para baixo e toque em <b>"Adicionar à Tela de Início"</b>.</li>
+                  </ol>
+                </div>
+              ) : (
+                <div class="space-y-1.5 leading-relaxed text-3xs text-slate-400">
+                  <p class="text-slate-300 font-semibold">💡 O botão de instalar não aparece?</p>
+                  <ul class="list-disc list-inside space-y-1 pl-1 text-slate-400">
+                    <li>Navegadores integrados (ex: <b>WhatsApp</b>) bloqueiam instalações.</li>
+                    <li>Toque nos <b>3 pontinhos</b> no topo da tela e selecione <b>"Abrir no Chrome"</b>.</li>
+                    <li>No Chrome, toque nos <b>3 pontinhos</b> e escolha <b>"Instalar aplicativo"</b> ou <b>"Adicionar à tela inicial"</b>.</li>
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // ==========================================
+    // TELA B: ABERTURA DE CHECK-LIST (CHECK-IN)
+    // ==========================================
+    function ScreenAbertura({ prefixo, viatura, listaAgentes, listaMateriais, setChecklistAtivo, setScreen, voltar }) {
+      const [condutor, setCondutor] = useState('');
+      const [patrulheiros, setPatrulheiros] = useState([]);
+      const [novoPatrulheiro, setNovoPatrulheiro] = useState('');
+      const [odometro, setOdometro] = useState(viatura.odometro_atual || '');
+      const [combustivel, setCombustivel] = useState(viatura.combustivel_atual || '1/2');
+      const [checklistItens, setChecklistItens] = useState({});
+      const [cargaInicial, setCargaInicial] = useState({});
+      const [fotos, setFotos] = useState([]);
+      const [avariaCiente, setAvariaCiente] = useState(false);
+      const [erro, setErro] = useState('');
+      const [salvando, setSalvando] = useState(false);
+
+      const [novasAvariasPerg, setNovasAvariasPerg] = useState(false);
+      const [novasAvariasDesc, setNovasAvariasDesc] = useState('');
+      const [novasAvariasFoto, setNovasAvariasFoto] = useState('');
+      const [listaNovasAvarias, setListaNovasAvarias] = useState([]);
+      const [observacoes, setObservacoes] = useState('');
+
+      const [loadingFotoAbertura, setLoadingFotoAbertura] = useState(false);
+      const [loadingFotoAvaria, setLoadingFotoAvaria] = useState(false);
+
+      const handleFotoUpload = async (file) => {
+        if (!file) return;
+        setLoadingFotoAbertura(true);
+        try {
+          const url = await uploadFoto(file);
+          setFotos(prev => [...prev, url]);
+        } catch (err) {
+          alert('Erro ao carregar a foto: ' + err.message);
+        } finally {
+          setLoadingFotoAbertura(false);
+        }
+      };
+
+      const handleFotoAvaria = async (file) => {
+        if (!file) return;
+        setLoadingFotoAvaria(true);
+        try {
+          const url = await uploadFoto(file);
+          setNovasAvariasFoto(url);
+        } catch (err) {
+          alert('Erro ao carregar a foto de avaria: ' + err.message);
+        } finally {
+          setLoadingFotoAvaria(false);
+        }
+      };
+
+      const handleAddAvaria = () => {
+        if (!novasAvariasDesc.trim()) {
+          alert('Por favor, digite a descrição da avaria.');
+          return;
+        }
+        const nova = {
+          id: 'AV_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+          descricao: novasAvariasDesc.trim(),
+          fotoUrl: novasAvariasFoto,
+          data_registro: new Date().toISOString()
+        };
+        setListaNovasAvarias(prev => [...prev, nova]);
+        setNovasAvariasDesc('');
+        setNovasAvariasFoto('');
+      };
+
+      const handleRemoveAvaria = (id) => {
+        setListaNovasAvarias(prev => prev.filter(av => av.id !== id));
+      };
+
+      const [outroNome, setOutroNome] = useState('');
+      const [outroQtd, setOutroQtd] = useState('');
+      const [adicionandoMaterial, setAdicionandoMaterial] = useState(false);
+
+      const handleAddOutroMaterial = async () => {
+        if (!outroNome.trim()) {
+          alert('Por favor, digite o nome do material.');
+          return;
+        }
+        const qtd = parseInt(outroQtd);
+        if (isNaN(qtd) || qtd <= 0) {
+          alert('Por favor, informe uma quantidade maior que zero.');
+          return;
+        }
+
+        setAdicionandoMaterial(true);
+        try {
+          const matId = await adicionarMaterialCustom(outroNome.trim());
+          
+          setCargaInicial(prev => ({
+            ...prev,
+            [matId]: (prev[matId] || 0) + qtd
+          }));
+          
+          setOutroNome('');
+          setOutroQtd('');
+        } catch (err) {
+          alert('Erro ao adicionar material personalizado.');
+        } finally {
+          setAdicionandoMaterial(false);
+        }
+      };
+
+      const itensChecklist = prefixo.startsWith('VTR') 
+        ? ['Nível de Água', 'Nível de Óleo', 'Giroflex', 'Rádio Comunicador'] 
+        : ['Nível de Óleo', 'Relação', 'Giroflex'];
+
+      useEffect(() => {
+        setCargaInicial(prev => {
+          const novaCarga = { ...prev };
+          listaMateriais.forEach(mat => {
+            if (novaCarga[mat.id] === undefined) {
+              novaCarga[mat.id] = 0;
+            }
+          });
+          return novaCarga;
+        });
+      }, [listaMateriais]);
+
+      useEffect(() => {
+        const check = {};
+        itensChecklist.forEach(item => {
+          check[item] = true;
+        });
+        setChecklistItens(check);
+      }, [prefixo]);
+
+      useEffect(() => {
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+      }, [listaNovasAvarias, novasAvariasPerg, novasAvariasFoto]);
+
+      const [showCondutorDropdown, setShowCondutorDropdown] = useState(false);
+      const [filteredCondutores, setFilteredCondutores] = useState([]);
+      const [showPatrulheiroDropdown, setShowPatrulheiroDropdown] = useState(false);
+      const [filteredPatrulheiros, setFilteredPatrulheiros] = useState([]);
+
+      const handleCondutorInput = (val) => {
+        setCondutor(val);
+        if (val.trim() === '') {
+          setFilteredCondutores([]);
+          setShowCondutorDropdown(false);
+        } else {
+          const matched = listaAgentes.filter(ag => 
+            ag.nome.toLowerCase().includes(val.toLowerCase()) || 
+            ag.matricula.includes(val)
+          );
+          setFilteredCondutores(matched);
+          setShowCondutorDropdown(true);
+        }
+      };
+
+      const handlePatrulheiroInput = (val) => {
+        setNovoPatrulheiro(val);
+        if (val.trim() === '') {
+          setFilteredPatrulheiros([]);
+          setShowPatrulheiroDropdown(false);
+        } else {
+          const matched = listaAgentes.filter(ag => 
+            (ag.nome.toLowerCase().includes(val.toLowerCase()) || 
+             ag.matricula.includes(val)) &&
+            ag.nome !== condutor &&
+            !patrulheiros.includes(ag.nome)
+          );
+          setFilteredPatrulheiros(matched);
+          setShowPatrulheiroDropdown(true);
+        }
+      };
+
+      const handleAddPatrulheiro = () => {
+        if (!novoPatrulheiro.trim()) return;
+        const ag = listaAgentes.find(a => a.nome === novoPatrulheiro);
+        const nomeParaAdd = ag ? ag.nome : novoPatrulheiro;
+        
+        if (!patrulheiros.includes(nomeParaAdd)) {
+          setPatrulheiros([...patrulheiros, nomeParaAdd]);
+        }
+        setNovoPatrulheiro('');
+        setFilteredPatrulheiros([]);
+        setShowPatrulheiroDropdown(false);
+      };
+
+      const handleCargaAlteracao = (id, change) => {
+        setCargaInicial(prev => {
+          const novoValor = Math.max(0, (prev[id] || 0) + change);
+          const materialBase = listaMateriais.find(m => m.id === id);
+          if (materialBase && novoValor > materialBase.quantidade_patio) {
+            alert(`⚠️ Estoque do Pátio insuficiente! Total disponível: ${materialBase.quantidade_patio}`);
+            return prev;
+          }
+          return { ...prev, [id]: novoValor };
+        });
+      };
+
+
+
+      const handleConfirmarAbertura = async () => {
+        setErro('');
+        
+        if (!condutor) {
+          setErro('Informe o Condutor / Piloto da Viatura.');
+          window.scrollTo(0, 0);
+          return;
+        }
+
+        if (!odometro || isNaN(odometro)) {
+          setErro('Informe um odômetro inicial numérico válido.');
+          window.scrollTo(0, 0);
+          return;
+        }
+
+        if (odometro < viatura.odometro_atual) {
+          setErro(`Odômetro menor que o registrado na abertura (${viatura.odometro_atual} km).`);
+          window.scrollTo(0, 0);
+          return;
+        }
+
+        if ((viatura.avarias_ativas || []).length > 0 && !avariaCiente) {
+          setErro('Você precisa dar ciência nas avarias pré-existentes.');
+          return;
+        }
+
+        if (novasAvariasPerg && listaNovasAvarias.length === 0 && !novasAvariasDesc.trim()) {
+          setErro('Por favor, informe a descrição detalhada de pelo menos uma nova avaria.');
+          return;
+        }
+
+        if (fotos.length < 1) {
+          setErro('Adicione pelo menos 1 foto do veículo na abertura.');
+          return;
+        }
+
+        setSalvando(true);
+
+        const condutorAgente = listaAgentes.find(a => a.nome === condutor);
+        const equipeFormata = [
+          {
+            nome: condutorAgente ? condutorAgente.nome : condutor,
+            matricula: condutorAgente ? condutorAgente.matricula : 'N/A',
+            papel: prefixo.startsWith('VTR') ? 'Condutor' : 'Piloto'
+          }
+        ];
+
+        patrulheiros.forEach(p => {
+          const ag = listaAgentes.find(a => a.nome === p);
+          equipeFormata.push({
+            nome: ag ? ag.nome : p,
+            matricula: ag ? ag.matricula : 'N/A',
+            papel: 'Patrulheiro'
+          });
+        });
+
+        let avariasParaEnviar = [...listaNovasAvarias];
+        if (novasAvariasPerg && novasAvariasDesc.trim()) {
+          avariasParaEnviar.push({
+            descricao: novasAvariasDesc.trim(),
+            fotoUrl: novasAvariasFoto,
+            data_registro: new Date().toISOString()
+          });
+        }
+
+        const aberturaData = {
+          equipe: equipeFormata,
+          odometro: parseInt(odometro),
+          combustivel,
+          fotos,
+          carga_inicial: cargaInicial,
+          avarias_cientes: (viatura.avarias_ativas || []).map(av => av.descricao),
+          itens_inspecionados: checklistItens,
+          observacoes: observacoes.trim(),
+          novas_avarias: novasAvariasPerg ? avariasParaEnviar.map(av => ({
+            descricao: av.descricao,
+            fotoUrl: av.fotoUrl || '',
+            data_registro: av.data_registro || new Date().toISOString()
+          })) : []
+        };
+
+        try {
+          const checklistId = await abrirChecklist(prefixo, aberturaData);
+          setChecklistAtivo(checklistId);
+          setScreen('servico');
+        } catch (err) {
+          console.error(err);
+          setErro(`Erro ao registrar a abertura no banco. Detalhes: ${err.message || err}`);
+        } finally {
+          setSalvando(false);
+        }
+      };
+
+      return (
+        <div class="space-y-6">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+            <button onClick={voltar} class="p-2 bg-slate-800/40 rounded-xl text-slate-400 hover:text-white">
+              <i data-lucide="arrow-left" class="w-5 h-5"></i>
+            </button>
+            <div class="text-right">
+              <h2 class="text-2xl font-bold font-outfit text-white">{prefixo}</h2>
+              <p class="text-xs text-slate-400">Check-in de Abertura de Plantão</p>
+            </div>
+          </div>
+
+          {erro && (
+            <div class="p-4 bg-rose-500/10 border border-rose-500/20 text-rose-300 text-sm rounded-xl flex items-start gap-2">
+              <i data-lucide="alert-circle" class="w-5 h-5 shrink-0 mt-0.5"></i>
+              <span>{erro}</span>
+            </div>
+          )}
+
+          <div class="glass-card rounded-2xl p-5 space-y-4">
+            <h3 class="text-sm font-bold uppercase tracking-wider text-indigo-400 flex items-center gap-2">
+              <i data-lucide="users" class="w-4 h-4"></i>
+              Composição da Equipe
+            </h3>
+            
+            <div class="relative">
+              <label class="block text-xs text-slate-400 mb-1">Condutor / Piloto da Viatura</label>
+              <input
+                type="text"
+                placeholder="Busque por nome ou matrícula"
+                value={condutor}
+                onChange={(e) => handleCondutorInput(e.target.value)}
+                onFocus={() => setShowCondutorDropdown(true)}
+                onBlur={() => setTimeout(() => setShowCondutorDropdown(false), 200)}
+                class="glass-input w-full px-4 py-3 rounded-xl text-sm focus:outline-none"
+              />
+              
+              {showCondutorDropdown && filteredCondutores.length > 0 && (
+                <div class="absolute z-10 w-full mt-1 bg-slate-900 border border-slate-800 rounded-xl max-h-40 overflow-y-auto shadow-2xl">
+                  {filteredCondutores.map(ag => (
+                    <button
+                      key={ag.matricula}
+                      type="button"
+                      onClick={() => {
+                        setCondutor(ag.nome);
+                        setShowCondutorDropdown(false);
+                      }}
+                      class="w-full text-left px-4 py-3 hover:bg-slate-800 border-b border-slate-800/50 text-sm text-slate-200"
+                    >
+                      {ag.nome}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div class="relative">
+              <label class="block text-xs text-slate-400 mb-1">Integrantes de Patrulha / Passageiros</label>
+              <div class="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="Busque por nome ou matrícula para adicionar..."
+                  value={novoPatrulheiro}
+                  onChange={(e) => handlePatrulheiroInput(e.target.value)}
+                  onFocus={() => setShowPatrulheiroDropdown(true)}
+                  onBlur={() => setTimeout(() => setShowPatrulheiroDropdown(false), 200)}
+                  class="glass-input flex-grow px-3 py-3 rounded-xl text-sm focus:outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={handleAddPatrulheiro}
+                  class="px-4 bg-indigo-600 hover:bg-indigo-500 rounded-xl font-bold text-white text-sm"
+                >
+                  + Add
+                </button>
+              </div>
+
+              {showPatrulheiroDropdown && filteredPatrulheiros.length > 0 && (
+                <div class="absolute z-10 w-full mt-1 bg-slate-900 border border-slate-800 rounded-xl max-h-40 overflow-y-auto shadow-2xl">
+                  {filteredPatrulheiros.map(ag => (
+                    <button
+                      key={ag.matricula}
+                      type="button"
+                      onClick={() => {
+                        if (!patrulheiros.includes(ag.nome)) {
+                          setPatrulheiros([...patrulheiros, ag.nome]);
+                        }
+                        setNovoPatrulheiro('');
+                        setShowPatrulheiroDropdown(false);
+                      }}
+                      class="w-full text-left px-4 py-3 hover:bg-slate-800 border-b border-slate-800/50 text-sm text-slate-200"
+                    >
+                      {ag.nome}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {patrulheiros.length > 0 && (
+                <div class="mt-3 flex flex-wrap gap-2">
+                  {patrulheiros.map((p, index) => (
+                    <span key={index} class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 text-xs text-slate-200 rounded-full border border-slate-700">
+                      {p}
+                      <button 
+                        type="button" 
+                        onClick={() => setPatrulheiros(patrulheiros.filter(x => x !== p))}
+                        class="text-slate-400 hover:text-rose-400"
+                      >
+                        <span><i data-lucide="x" class="w-3.5 h-3.5"></i></span>
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div class="glass-card rounded-2xl p-5 space-y-4">
+            <h3 class="text-sm font-bold uppercase tracking-wider text-indigo-400 flex items-center gap-2">
+              <i data-lucide="gauge" class="w-4 h-4"></i>
+              Status do Veículo
+            </h3>
+            
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs text-slate-400 mb-1">Odômetro Inicial</label>
+                <input
+                  type="number"
+                  placeholder={`Mínimo: ${viatura.odometro_atual} km`}
+                  value={odometro}
+                  onChange={(e) => setOdometro(e.target.value)}
+                  class="glass-input w-full px-4 py-3 rounded-xl text-sm font-bold focus:outline-none"
+                />
+              </div>
+              
+              <div>
+                <label class="block text-xs text-slate-400 mb-1">Combustível</label>
+                <select
+                  value={combustivel}
+                  onChange={(e) => setCombustivel(e.target.value)}
+                  class="glass-input w-full px-3 py-3 rounded-xl text-sm font-bold focus:outline-none text-indigo-400"
+                >
+                  <option value="Reserva">Reserva ⚠️</option>
+                  <option value="1/4">1/4</option>
+                  <option value="1/2">1/2</option>
+                  <option value="3/4">3/4</option>
+                  <option value="Cheio">Cheio ⛽</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass-card rounded-2xl p-5 space-y-4">
+            <h3 class="text-sm font-bold uppercase tracking-wider text-indigo-400 flex items-center gap-2">
+              <i data-lucide="check-square" class="w-4 h-4"></i>
+              Inspeção de Itens Obrigatórios
+            </h3>
+
+            <div class="space-y-3">
+              {itensChecklist.map(item => (
+                <div key={item} class="flex items-center justify-between p-3 bg-navy-900/40 border border-slate-800 rounded-xl">
+                  <span class="text-sm text-slate-200">{item}</span>
+                  <div class="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setChecklistItens({ ...checklistItens, [item]: true })}
+                      class={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                        checklistItens[item] === true 
+                          ? 'bg-emerald-600 text-white' 
+                          : 'bg-slate-800 text-slate-500 hover:text-slate-400'
+                      }`}
+                    >
+                      SIM
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setChecklistItens({ ...checklistItens, [item]: false })}
+                      class={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                        checklistItens[item] === false 
+                          ? 'bg-rose-600 text-white' 
+                          : 'bg-slate-800 text-slate-500 hover:text-slate-400'
+                      }`}
+                    >
+                      NÃO
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {(viatura.avarias_ativas || []).length > 0 && (
+            <div class="glass-card rounded-2xl p-5 border border-amber-500/20 bg-amber-500/5 space-y-4">
+              <h3 class="text-sm font-bold uppercase tracking-wider text-amber-400 flex items-center gap-2">
+                <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+                Avarias Pré-existentes
+              </h3>
+              
+              <div class="space-y-3">
+                {(viatura.avarias_ativas || []).map((av, idx) => (
+                  <div key={idx} class="flex gap-3 p-3 bg-slate-900/60 rounded-xl border border-slate-800">
+                    {av.fotoUrl && (
+                      <img src={av.fotoUrl} alt="Avaria" class="w-16 h-16 object-cover rounded-lg border border-slate-700 shrink-0" />
+                    )}
+                    <div>
+                      <p class="text-sm text-slate-200 font-semibold">{av.descricao}</p>
+                      <p class="text-xs text-slate-500 mt-1">Registrado em: {new Date(av.data_registro).toLocaleDateString('pt-BR')}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <label class="flex items-center gap-3 p-3 bg-amber-500/10 rounded-xl border border-amber-500/20 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={avariaCiente}
+                  onChange={(e) => setAvariaCiente(e.target.checked)}
+                  class="w-5 h-5 rounded border-slate-700 text-indigo-600 focus:ring-indigo-600/30"
+                />
+                <span class="text-xs font-bold text-amber-200">DECLARO CIÊNCIA DAS AVARIAS ACIMA</span>
+              </label>
+            </div>
+          )}
+
+          <div class="glass-card rounded-2xl p-5 border border-slate-800 space-y-4">
+            <div class="flex justify-between items-center">
+              <h3 class="text-sm font-bold uppercase tracking-wider text-amber-400 flex items-center gap-2">
+                <i data-lucide="shield-alert" class="w-4 h-4 text-amber-500"></i>
+                Nova Avaria na Retirada?
+              </h3>
+              
+              <div class="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setNovasAvariasPerg(true)}
+                  class={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                    novasAvariasPerg 
+                      ? 'bg-amber-600 text-white' 
+                      : 'bg-slate-800 text-slate-500'
+                  }`}
+                >
+                  SIM
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setNovasAvariasPerg(false);
+                    setListaNovasAvarias([]);
+                    setNovasAvariasDesc('');
+                    setNovasAvariasFoto('');
+                  }}
+                  class={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                    !novasAvariasPerg 
+                      ? 'bg-slate-700 text-slate-300' 
+                      : 'bg-slate-850 text-slate-500'
+                  }`}
+                >
+                  NÃO
+                </button>
+              </div>
+            </div>
+
+            {novasAvariasPerg && (
+              <div class="space-y-4 pt-2 border-t border-slate-800/80">
+                {listaNovasAvarias.length > 0 && (
+                  <div class="space-y-2 mb-3">
+                    <label class="block text-2xs font-extrabold uppercase tracking-wider text-slate-400">Avarias Registradas nesta Abertura ({listaNovasAvarias.length})</label>
+                    <div class="grid grid-cols-1 gap-2">
+                      {listaNovasAvarias.map((av) => (
+                        <div key={av.id} class="flex items-center justify-between p-3 bg-slate-900/60 border border-slate-800 rounded-xl gap-3">
+                          <div class="flex items-center gap-3">
+                            {av.fotoUrl ? (
+                              <img src={av.fotoUrl} alt="Nova avaria" class="w-12 h-12 object-cover rounded-lg border border-slate-700 shrink-0" />
+                            ) : (
+                              <div class="w-12 h-12 rounded-lg bg-slate-800 flex items-center justify-center text-slate-500 shrink-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><line x1="2" y1="2" x2="22" y2="22"/><path d="M21 16V6a2 2 0 0 0-2-2H9m-4 0a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11m4-4-4-4-2.828 2.828a2 2 0 0 1-2.828 0L9 13l-3 3"/><circle cx="9" cy="9" r="2"/></svg>
+                              </div>
+                            )}
+                            <p class="text-xs text-slate-250 font-medium line-clamp-2">{av.descricao}</p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveAvaria(av.id)}
+                            class="p-2 hover:bg-red-950/30 text-red-400 hover:text-red-300 rounded-lg transition-all shrink-0"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2M10 11v6M14 11v6"/></svg>
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div class="bg-navy-950/30 p-4 border border-slate-850 rounded-xl space-y-4">
+                  <label class="block text-xs font-bold text-amber-300/80 uppercase tracking-wider">Nova Avaria</label>
+                  <div>
+                    <label class="block text-xs text-slate-400 mb-1">Descrição da Nova Avaria*</label>
+                    <input
+                      type="text"
+                      placeholder="Ex: Novo arranhão no para-choque..."
+                      value={novasAvariasDesc}
+                      onChange={(e) => setNovasAvariasDesc(e.target.value)}
+                      class="glass-input w-full px-4 py-3 rounded-xl text-sm focus:outline-none border-amber-500/25"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label class="block text-xs text-slate-400 mb-2">Foto da Nova Avaria</label>
+                    <div class="flex items-center gap-3">
+                      {novasAvariasFoto ? (
+                        <div class="relative w-20 h-20 rounded-xl border border-slate-700 overflow-hidden">
+                          <img src={novasAvariasFoto} alt="Nova avaria" class="w-full h-full object-cover" />
+                          <button
+                            type="button"
+                            onClick={() => setNovasAvariasFoto('')}
+                            class="absolute top-1 right-1 p-1 bg-red-600 rounded-full text-white"
+                          >
+                            <span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-2.5 h-2.5"><path d="M18 6 6 18M6 6l12 12"/></svg></span>
+                          </button>
+                        </div>
+                      ) : (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => document.getElementById('foto-avaria-camera-input').click()}
+                            disabled={loadingFotoAvaria}
+                            class="w-24 h-20 bg-indigo-950/20 hover:bg-indigo-900/20 border border-dashed border-indigo-500/30 rounded-xl flex flex-col items-center justify-center text-indigo-400 gap-1 disabled:opacity-55 btn-tactile"
+                          >
+                            {loadingFotoAvaria ? (
+                              <div class="w-5 h-5 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin"></div>
+                            ) : (
+                              <>
+                                <span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg></span>
+                                <span class="text-[9px] uppercase font-bold">Câmera</span>
+                              </>
+                            )}
+                          </button>
+                          <input
+                            id="foto-avaria-camera-input"
+                            type="file"
+                            accept="image/*"
+                            capture="environment"
+                            onChange={(e) => {
+                              if (e.target.files[0]) handleFotoAvaria(e.target.files[0]);
+                            }}
+                            class="hidden"
+                          />
+
+                          <button
+                            type="button"
+                            onClick={() => document.getElementById('foto-avaria-galeria-input').click()}
+                            disabled={loadingFotoAvaria}
+                            class="w-24 h-20 bg-slate-850 hover:bg-slate-800 border border-dashed border-slate-700 rounded-xl flex flex-col items-center justify-center text-slate-400 gap-1 disabled:opacity-55 btn-tactile"
+                          >
+                            {loadingFotoAvaria ? (
+                              <div class="w-5 h-5 border-2 border-slate-400 border-t-transparent rounded-full animate-spin"></div>
+                            ) : (
+                              <>
+                                <span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg></span>
+                                <span class="text-[9px] uppercase font-bold">Galeria</span>
+                              </>
+                            )}
+                          </button>
+                          <input
+                            id="foto-avaria-galeria-input"
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              if (e.target.files[0]) handleFotoAvaria(e.target.files[0]);
+                            }}
+                            class="hidden"
+                          />
+                        </>
+                      )}
+                    </div>
+                  </div>
+
+                  <div class="flex justify-end pt-2">
+                    <button
+                      type="button"
+                      onClick={handleAddAvaria}
+                      disabled={!novasAvariasDesc.trim() || loadingFotoAvaria}
+                      class="px-4 py-2.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 disabled:opacity-40 disabled:pointer-events-none rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 btn-tactile"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                      ADICIONAR ESTA AVARIA
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div class="glass-card rounded-2xl p-5 space-y-4">
+            <h3 class="text-sm font-bold uppercase tracking-wider text-indigo-400 flex items-center gap-2">
+              <i data-lucide="package" class="w-4 h-4"></i>
+              Carregar Materiais Operacionais
+            </h3>
+            <p class="text-xs text-slate-400 -mt-2">Esses itens serão debitados automaticamente do estoque central.</p>
+
+            <div class="space-y-3">
+              {listaMateriais.map(mat => (
+                <div key={mat.id} class="flex items-center justify-between p-3.5 bg-navy-900/40 border border-slate-800 rounded-xl">
+                  <div>
+                    <h4 class="text-sm font-semibold text-slate-200">{mat.nome}</h4>
+                    <p class="text-xs text-slate-500">Pátio Central: {mat.quantidade_patio} unid.</p>
+                  </div>
+                  
+                  <div class="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => handleCargaAlteracao(mat.id, -1)}
+                      class="w-8 h-8 flex items-center justify-center bg-slate-800 hover:bg-slate-700 active:bg-slate-900 text-slate-300 rounded-lg text-lg font-bold transition-all"
+                    >
+                      -
+                    </button>
+                    <span class="w-8 text-center text-lg font-bold font-outfit text-white">
+                      {cargaInicial[mat.id] || 0}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handleCargaAlteracao(mat.id, 1)}
+                      class="w-8 h-8 flex items-center justify-center bg-slate-800 hover:bg-slate-700 active:bg-slate-900 text-slate-300 rounded-lg text-lg font-bold transition-all"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Inclusão de Outros Materiais Personalizados */}
+            <div class="pt-4 border-t border-slate-800/85 space-y-3">
+              <label class="block text-xs font-semibold text-slate-400">Adicionar Outros Materiais</label>
+              <div class="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="Nome do material (ex: Fita Zebrada)"
+                  value={outroNome}
+                  onChange={(e) => setOutroNome(e.target.value)}
+                  class="glass-input flex-grow px-3 py-2.5 rounded-xl text-xs focus:outline-none"
+                />
+                <input
+                  type="number"
+                  placeholder="Qtd"
+                  min="1"
+                  value={outroQtd}
+                  onChange={(e) => setOutroQtd(e.target.value)}
+                  class="glass-input w-20 px-2 py-2.5 rounded-xl text-xs text-center focus:outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={handleAddOutroMaterial}
+                  disabled={adicionandoMaterial}
+                  class="px-4 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-700 rounded-xl font-bold text-white text-xs whitespace-nowrap btn-tactile flex items-center justify-center"
+                >
+                  {adicionandoMaterial ? '...' : '+ Add'}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass-card rounded-2xl p-5 border border-slate-800 space-y-4">
+            <h3 class="text-sm font-bold uppercase tracking-wider text-indigo-400 flex items-center gap-2">
+              <i data-lucide="edit-3" class="w-4 h-4"></i>
+              Observações Gerais de Entrada
+            </h3>
+            <textarea
+              placeholder="Digite alguma observação sobre o estado do veículo ou equipe se achar necessário..."
+              value={observacoes}
+              onChange={(e) => setObservacoes(e.target.value)}
+              class="glass-input w-full px-4 py-3 rounded-xl text-sm focus:outline-none h-20 resize-none"
+            ></textarea>
+          </div>
+
+          <div class="glass-card rounded-2xl p-5 space-y-4">
+            <h3 class="text-sm font-bold uppercase tracking-wider text-indigo-400 flex items-center gap-2">
+              <i data-lucide="camera" class="w-4 h-4"></i>
+              Fotos Obrigatórias da Abertura
+            </h3>
+            <p class="text-xs text-slate-400 -mt-2">Tire pelo menos 1 foto nítida do veículo.</p>
+
+            <div class="grid grid-cols-3 gap-3">
+              {fotos.map((url, i) => (
+                <div key={i} class="relative w-full h-24 rounded-xl border border-slate-800 overflow-hidden">
+                  <img src={url} alt="Abertura" class="w-full h-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => setFotos(fotos.filter((_, idx) => idx !== i))}
+                    class="absolute top-1 right-1 p-1 bg-red-600 rounded-full text-white text-xs"
+                  >
+                    <span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3 h-3"><path d="M18 6 6 18M6 6l12 12"/></svg></span>
+                  </button>
+                </div>
+              ))}
+              
+              <div class="grid grid-cols-2 gap-3 w-full">
+                <button
+                  type="button"
+                  onClick={() => document.getElementById('foto-abertura-camera-input').click()}
+                  disabled={loadingFotoAbertura}
+                  class="h-24 bg-indigo-950/20 hover:bg-indigo-900/20 text-indigo-400 border border-dashed border-indigo-500/30 rounded-xl flex flex-col items-center justify-center gap-1 transition-all disabled:opacity-55 btn-tactile"
+                >
+                  {loadingFotoAbertura ? (
+                    <div class="w-6 h-6 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+                      <span class="text-2xs font-semibold uppercase tracking-wider">Câmera</span>
+                    </>
+                  )}
+                </button>
+                <input
+                  id="foto-abertura-camera-input"
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  onChange={(e) => {
+                    if (e.target.files[0]) handleFotoUpload(e.target.files[0]);
+                  }}
+                  class="hidden"
+                />
+
+                <button
+                  type="button"
+                  onClick={() => document.getElementById('foto-abertura-galeria-input').click()}
+                  disabled={loadingFotoAbertura}
+                  class="h-24 bg-slate-800/40 hover:bg-slate-800 text-slate-400 border border-dashed border-slate-700 hover:border-slate-500 rounded-xl flex flex-col items-center justify-center gap-1 transition-all disabled:opacity-55 btn-tactile"
+                >
+                  {loadingFotoAbertura ? (
+                    <div class="w-6 h-6 border-2 border-slate-400 border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                      <span class="text-2xs font-semibold uppercase tracking-wider">Galeria</span>
+                    </>
+                  )}
+                </button>
+                <input
+                  id="foto-abertura-galeria-input"
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    if (e.target.files[0]) handleFotoUpload(e.target.files[0]);
+                  }}
+                  class="hidden"
+                />
+              </div>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleConfirmarAbertura}
+            disabled={salvando}
+            class="btn-tactile w-full py-4.5 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white rounded-2xl text-base font-bold transition-all shadow-lg shadow-emerald-600/20 disabled:opacity-50"
+          >
+            {salvando ? (
+              <div class="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto"></div>
+            ) : (
+              'CONFIRMAR CHECK-IN & ABRIR SERVIÇO'
+            )}
+          </button>
+        </div>
+      );
+    }
+
+    // ==========================================
+    // TELA C: SERVIÇO (MODO DE PLANTÃO - 100% TEMPO REAL)
+    // ==========================================
+    function ScreenServico({ prefixo, viatura, checklist, listaMateriais, listaAgentes, setScreen }) {
+      const [modalEquipe, setModalEquipe] = useState(false);
+      const [modalMovimento, setModalMovimento] = useState(false);
+      const [movTipo, setMovTipo] = useState(null);
+      
+      const [equipeEdit, setEquipeEdit] = useState([]);
+      const [novoIntegranteEdit, setNovoIntegranteEdit] = useState('');
+      const [showIntegranteDropdown, setShowIntegranteDropdown] = useState(false);
+      const [filteredIntegrantes, setFilteredIntegrantes] = useState([]);
+
+      const [movMaterialId, setMovMaterialId] = useState('');
+      const [movQuantidade, setMovQuantidade] = useState(1);
+      const [movOutroMaterialText, setMovOutroMaterialText] = useState('');
+      const [movFoto, setMovFoto] = useState('');
+      const [movObservacao, setMovObservacao] = useState('');
+      const [loadingFotoMovimento, setLoadingFotoMovimento] = useState(false);
+
+      const [gpsStatus, setGpsStatus] = useState('ocioso');
+      const [gpsCoords, setGpsCoords] = useState(null);
+      const [enderecoManual, setEnderecoManual] = useState('');
+      const [gpsCountdown, setGpsCountdown] = useState(5);
+      const timerRef = useRef(null);
+
+      // Logística Inteligente por Lote
+      const [lotesAtivos, setLotesAtivos] = useState([]);
+      const [selectedLoteId, setSelectedLoteId] = useState('');
+      const [selectedLoteChecklistId, setSelectedLoteChecklistId] = useState('');
+      const [movNaoEncontrado, setMovNaoEncontrado] = useState(false);
+
+      useEffect(() => {
+        if (!listenTodosChecklists) return;
+        const unsub = listenTodosChecklists((data) => {
+          const active = data.flatMap(c => {
+            return (c.movimentacoes || [])
+              .filter(m => m.tipo === 'deixei_via' && m.quantidade_restante > 0)
+              .map(m => ({
+                ...m,
+                viatura_id: c.viatura_id,
+                checklist_id: c.id,
+                agente_nome: c.abertura?.equipe?.[0]?.nome || 'Desconhecido'
+              }));
+          });
+          setLotesAtivos(active);
+        });
+        return () => unsub();
+      }, []);
+
+      useEffect(() => {
+        if (checklist.abertura && checklist.abertura.equipe) {
+          setEquipeEdit(checklist.abertura.equipe);
+        }
+      }, [checklist]);
+
+      const closeMovimentoModal = () => {
+        setModalMovimento(false);
+        setMovTipo(null);
+        setMovMaterialId('');
+        setMovQuantidade(1);
+        setMovOutroMaterialText('');
+        setGpsStatus('ocioso');
+        setGpsCoords(null);
+        setEnderecoManual('');
+        setSelectedLoteId('');
+        setSelectedLoteChecklistId('');
+        setMovNaoEncontrado(false);
+        setMovFoto('');
+        setMovObservacao('');
+        setLoadingFotoMovimento(false);
+        clearInterval(timerRef.current);
+      };
+
+      const iniciarRastreamentoGPS = () => {
+        setGpsStatus('buscando');
+        setGpsCoords(null);
+        setGpsCountdown(10);
+
+        if (timerRef.current) clearInterval(timerRef.current);
+
+        timerRef.current = setInterval(() => {
+          setGpsCountdown(prev => {
+            if (prev <= 1) {
+              clearInterval(timerRef.current);
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+
+        const buscarEnderecoReverso = (lat, lng) => {
+          fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`, {
+            headers: { 
+              'Accept-Language': 'pt-BR',
+              'User-Agent': 'GestaoFrota/1.0'
+            }
+          })
+            .then(res => res.json())
+            .then(data => {
+              if (data && data.display_name) {
+                const addr = data.address;
+                let compactAddr = '';
+                if (addr.road) {
+                  compactAddr = addr.road;
+                  if (addr.house_number) compactAddr += `, nº ${addr.house_number}`;
+                  if (addr.suburb) compactAddr += ` - ${addr.suburb}`;
+                } else {
+                  compactAddr = data.display_name;
+                }
+                setEnderecoManual(compactAddr);
+              } else {
+                setEnderecoManual(`Coordenadas: ${lat.toFixed(6)}, ${lng.toFixed(6)}`);
+              }
+            })
+            .catch(() => {
+              setEnderecoManual(`Coordenadas: ${lat.toFixed(6)}, ${lng.toFixed(6)}`);
+            });
+        };
+
+        const dispararFallbackSimulado = () => {
+          clearInterval(timerRef.current);
+          setGpsStatus('sucesso');
+          const lat = -23.55052 + (Math.random() - 0.5) * 0.01;
+          const lng = -46.633308 + (Math.random() - 0.5) * 0.01;
+          setGpsCoords({ latitude: lat, longitude: lng });
+          buscarEnderecoReverso(lat, lng);
+        };
+
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              clearInterval(timerRef.current);
+              setGpsStatus('sucesso');
+              const lat = position.coords.latitude;
+              const lng = position.coords.longitude;
+              setGpsCoords({ latitude: lat, longitude: lng });
+              buscarEnderecoReverso(lat, lng);
+            },
+            (error) => {
+              console.warn("⚠️ Falha ao obter GPS Real:", error.message);
+              if (isDemoMode) {
+                dispararFallbackSimulado();
+              } else {
+                clearInterval(timerRef.current);
+                setGpsStatus('falha');
+                alert("Não foi possível acessar a localização do dispositivo. Ative o GPS nas configurações e conceda a permissão ao aplicativo, ou digite o endereço/referência manualmente.");
+              }
+            },
+            {
+              enableHighAccuracy: true,
+              timeout: 9000,
+              maximumAge: 0
+            }
+          );
+        } else {
+          console.warn("⚠️ Geolocation API não suportada.");
+          if (isDemoMode) {
+            dispararFallbackSimulado();
+          } else {
+            clearInterval(timerRef.current);
+            setGpsStatus('falha');
+            alert("Seu navegador não suporta geolocalização. Por favor, digite o endereço manualmente.");
+          }
+        }
+      };
+
+      const handleFotoMovimento = async (file) => {
+        if (!file) return;
+        setLoadingFotoMovimento(true);
+        try {
+          const url = await uploadFoto(file);
+          setMovFoto(url);
+        } catch (err) {
+          alert('Erro ao carregar a foto: ' + err.message);
+        } finally {
+          setLoadingFotoMovimento(false);
+        }
+      };
+
+      const handleMovimentoBotao = (tipo) => {
+        setMovTipo(tipo);
+        setModalMovimento(true);
+        
+        if (listaMateriais.length > 0) {
+          setMovMaterialId(listaMateriais[0].id);
+        }
+
+        if (tipo === 'deixei_via' || tipo === 'recolhi_via') {
+          iniciarRastreamentoGPS();
+        }
+      };
+
+      const handleConfirmarMovimentacao = async () => {
+        if (!movMaterialId) return;
+
+        if ((movTipo === 'deixei_via' || movTipo === 'recolhi_via') && gpsStatus === 'falha' && !enderecoManual.trim()) {
+          alert('Por favor, informe o endereço manual ou ponto de referência.');
+          return;
+        }
+
+        if (movMaterialId === 'outro' && !movOutroMaterialText.trim()) {
+          alert('Por favor, digite o nome do material não listado.');
+          return;
+        }
+
+        if (movTipo === 'recolhi_via' && movNaoEncontrado && (!selectedLoteId || selectedLoteId === 'outro')) {
+          alert('Para marcar como não encontrado, por favor selecione um lote ativo de rua listado na caixa de seleção.');
+          return;
+        }
+
+        const movimentoData = {
+          tipo: movTipo,
+          material_id: movMaterialId,
+          quantidade: parseInt(movQuantidade),
+          outro_material: movMaterialId === 'outro' ? movOutroMaterialText : null,
+          gps: gpsCoords,
+          endereco: enderecoManual.trim() ? enderecoManual.trim() : (gpsStatus === 'sucesso' && gpsCoords ? `Coordenadas: ${gpsCoords.latitude.toFixed(6)}, ${gpsCoords.longitude.toFixed(6)}` : 'Sem endereço informado'),
+          referencia_mov_id: (movTipo === 'recolhi_via' && selectedLoteId && selectedLoteId !== 'outro') ? selectedLoteId : null,
+          referencia_checklist_id: (movTipo === 'recolhi_via' && selectedLoteId && selectedLoteId !== 'outro') ? selectedLoteChecklistId : null,
+          nao_listado: movTipo === 'recolhi_via' && (selectedLoteId === 'outro' || !selectedLoteId),
+          nao_encontrado: movTipo === 'recolhi_via' && movNaoEncontrado,
+          foto_url: (movTipo === 'deixei_via' && movFoto) ? movFoto : null,
+          observacao: (movTipo === 'deixei_via' || movTipo === 'recolhi_via') && movObservacao.trim() ? movObservacao.trim() : null
+        };
+
+        try {
+          await registrarMovimentacao(prefixo, checklist.id, movimentoData);
+          closeMovimentoModal();
+        } catch (err) {
+          alert('Erro ao sincronizar movimentação. Verifique a rede.');
+        }
+      };
+
+      const handleIntegranteInput = (val) => {
+        setNovoIntegranteEdit(val);
+        if (val.trim() === '') {
+          setFilteredIntegrantes([]);
+          setShowIntegranteDropdown(false);
+        } else {
+          const matched = listaAgentes.filter(ag => 
+            (ag.nome.toLowerCase().includes(val.toLowerCase()) || 
+             ag.matricula.includes(val)) &&
+            !equipeEdit.some(p => p.nome === ag.nome)
+          );
+          setFilteredIntegrantes(matched);
+          setShowIntegranteDropdown(true);
+        }
+      };
+
+      const addIntegranteLocal = () => {
+        if (!novoIntegranteEdit.trim()) return;
+        const ag = listaAgentes.find(a => a.nome === novoIntegranteEdit);
+        const formatado = {
+          nome: ag ? ag.nome : novoIntegranteEdit,
+          matricula: ag ? ag.matricula : 'N/A',
+          papel: 'Patrulheiro'
+        };
+
+        if (!equipeEdit.some(x => x.nome.trim().toLowerCase() === formatado.nome.trim().toLowerCase())) {
+          setEquipeEdit([...equipeEdit, formatado]);
+        }
+        setNovoIntegranteEdit('');
+        setFilteredIntegrantes([]);
+        setShowIntegranteDropdown(false);
+      };
+
+      const salvarNovaEquipe = async () => {
+        try {
+          await alterarIntegrantes(prefixo, checklist.id, equipeEdit);
+          setModalEquipe(false);
+        } catch (err) {
+          alert('Erro ao atualizar equipe no banco.');
+        }
+      };
+
+      useEffect(() => {
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+      }, [modalEquipe, modalMovimento, gpsStatus]);
+
+      return (
+        <div class="space-y-6">
+          
+          <div class="glass-card rounded-3xl p-5 border border-indigo-500/25 bg-gradient-to-br from-indigo-950/40 to-slate-900/60 shadow-xl space-y-4">
+            
+            <div class="flex justify-between items-start">
+              <div>
+                <span class="inline-flex px-2.5 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-2xs font-extrabold tracking-wider rounded-full uppercase animate-pulse">
+                  Plantão Ativo
+                </span>
+                <h2 class="text-3xl font-black font-outfit text-white tracking-wide mt-1.5">{prefixo}</h2>
+              </div>
+              <button
+                onClick={() => setModalEquipe(true)}
+                class="btn-tactile px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700/60 rounded-xl text-xs font-bold flex items-center gap-1.5"
+              >
+                <i data-lucide="users" class="w-4 h-4 text-indigo-400"></i>
+                <span>Equipe</span>
+              </button>
+            </div>
+
+            <div class="border-t border-slate-800/80 pt-3 flex flex-col gap-1.5">
+              <span class="text-2xs font-bold text-slate-500 uppercase tracking-widest block">Equipe de Serviço</span>
+              <div class="flex flex-col gap-1">
+                {checklist.abertura && (checklist.abertura.equipe || []).map((p, i) => (
+                  <div key={i} class="flex items-center gap-2 text-sm text-slate-200">
+                    <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+                    <span class="font-semibold">{p.nome}</span>
+                    <span class="text-xs text-slate-400">({p.papel})</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 border-t border-slate-800/80 pt-3">
+              <div>
+                <span class="text-2xs font-semibold text-slate-400 uppercase tracking-wider block">Km Inicial</span>
+                <span class="text-base font-extrabold text-slate-200 font-outfit">{checklist.abertura?.odometro} km</span>
+              </div>
+              <div>
+                <span class="text-2xs font-semibold text-slate-400 uppercase tracking-wider block">Combustível</span>
+                <span class="text-base font-extrabold text-slate-200 font-outfit">{checklist.abertura?.combustivel}</span>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="glass-card rounded-2xl p-5 space-y-4">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+              <i data-lucide="archive" class="w-4 h-4 text-slate-400"></i>
+              Saldo de Carga na Viatura
+            </h3>
+
+            <div class="grid grid-cols-3 gap-3">
+              {listaMateriais.map(mat => {
+                const totalVtr = viatura.carga_atual?.[mat.id] || 0;
+                return (
+                  <div key={mat.id} class="p-3 bg-navy-900/50 rounded-xl border border-slate-800 flex flex-col items-center justify-between text-center min-h-[90px]">
+                    <span class="text-2xs font-medium text-slate-400 line-clamp-1">{mat.nome}</span>
+                    <span class="text-3xl font-black font-outfit text-white mt-1">
+                      {totalVtr}
+                    </span>
+                    <span class="text-2xs text-slate-500 mt-0.5">VTR</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <div class="glass-card rounded-3xl p-5 space-y-4 border border-indigo-500/10">
+            <div class="text-center mb-1">
+              <h3 class="text-base font-bold font-outfit text-white">Logística de Cargas</h3>
+              <p class="text-xs text-slate-400">Ações rápidas na rua ou no pátio</p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <button
+                onClick={() => handleMovimentoBotao('deixei_via')}
+                class="btn-tactile py-4.5 bg-slate-900 border border-indigo-500/20 text-indigo-300 font-bold rounded-2xl flex flex-col items-center justify-center gap-2 hover:bg-slate-850 active:bg-slate-950 transition-all shadow-md"
+              >
+                <i data-lucide="map-pin" class="w-7 h-7 text-indigo-400 animate-bounce"></i>
+                <span class="text-xs uppercase tracking-wide">Deixei na Via</span>
+              </button>
+              
+              <button
+                onClick={() => handleMovimentoBotao('recolhi_via')}
+                class="btn-tactile py-4.5 bg-slate-900 border border-indigo-500/20 text-indigo-300 font-bold rounded-2xl flex flex-col items-center justify-center gap-2 hover:bg-slate-850 active:bg-slate-950 transition-all shadow-md"
+              >
+                <i data-lucide="navigation" class="w-7 h-7 text-indigo-400"></i>
+                <span class="text-xs uppercase tracking-wide">Recolhi da Via</span>
+              </button>
+
+              <button
+                onClick={() => handleMovimentoBotao('peguei_base')}
+                class="btn-tactile py-4.5 bg-[#0b2b1b] border border-emerald-500/20 text-emerald-300 font-bold rounded-2xl flex flex-col items-center justify-center gap-2 hover:bg-emerald-950 active:bg-emerald-900 transition-all shadow-md"
+              >
+                <i data-lucide="plus-square" class="w-7 h-7 text-emerald-400"></i>
+                <span class="text-xs uppercase tracking-wide">Peguei da Base</span>
+              </button>
+              
+              <button
+                onClick={() => handleMovimentoBotao('devolvi_base')}
+                class="btn-tactile py-4.5 bg-[#2d1218] border border-rose-500/20 text-rose-300 font-bold rounded-2xl flex flex-col items-center justify-center gap-2 hover:bg-rose-950 active:bg-rose-900 transition-all shadow-md"
+              >
+                <i data-lucide="minus-square" class="w-7 h-7 text-rose-400"></i>
+                <span class="text-xs uppercase tracking-wide">Devolvi à Base</span>
+              </button>
+            </div>
+          </div>
+
+          <button
+            onClick={() => setScreen('encerramento')}
+            class="btn-tactile w-full py-4 bg-rose-600/90 hover:bg-rose-500 active:bg-rose-700 text-white rounded-2xl text-base font-bold transition-all flex items-center justify-center gap-2 shadow-lg shadow-rose-600/15"
+          >
+            <i data-lucide="power" class="w-5 h-5"></i>
+            <span>ENCERRAR PLANTÃO ATUAL</span>
+          </button>
+
+          {/* MODAL EQUIPE */}
+          {modalEquipe && (
+            <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+              <div class="glass-card w-full max-w-sm rounded-3xl p-6 space-y-6 max-h-[90vh] overflow-y-auto">
+                
+                <div class="flex justify-between items-center">
+                  <h3 class="text-lg font-bold font-outfit text-white flex items-center gap-2">
+                    <i data-lucide="users" class="w-5 h-5 text-indigo-400"></i>
+                    Alterar Integrantes
+                  </h3>
+                  <button onClick={() => setModalEquipe(false)} class="text-slate-400 hover:text-white">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                  </button>
+                </div>
+
+                <div class="space-y-2">
+                  <span class="text-2xs font-bold text-slate-500 uppercase tracking-widest block">Condutor / Piloto da Viatura</span>
+                  <select
+                    value={equipeEdit.find(p => p.papel === 'Condutor' || p.papel === 'Piloto')?.matricula || ''}
+                    onChange={(e) => {
+                      const selectedMat = e.target.value;
+                      const ag = listaAgentes.find(a => a.matricula === selectedMat);
+                      if (ag) {
+                        setEquipeEdit(prev => prev.map(p => {
+                          if (p.papel === 'Condutor' || p.papel === 'Piloto') {
+                            return { ...p, nome: ag.nome, matricula: ag.matricula };
+                          }
+                          return p;
+                        }));
+                      }
+                    }}
+                    class="glass-input w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none text-indigo-400 font-bold"
+                  >
+                    {listaAgentes.map(ag => (
+                      <option key={ag.matricula} value={ag.matricula}>
+                        {ag.nome}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div class="space-y-2">
+                  <span class="text-2xs font-bold text-slate-500 uppercase tracking-widest">Integrantes de Patrulha</span>
+                  {equipeEdit.map((p, idx) => (
+                    <div key={idx} class="flex items-center justify-between p-3 bg-slate-900/50 border border-slate-800 rounded-xl">
+                      <div>
+                        <span class="text-sm font-semibold text-slate-200">{p.nome}</span>
+                        <span class="text-xs text-slate-400 block">{p.papel}</span>
+                      </div>
+                      
+                      {p.papel !== 'Condutor' && p.papel !== 'Piloto' && (
+                        <button
+                          type="button"
+                          onClick={() => setEquipeEdit(equipeEdit.filter(x => x.nome !== p.nome))}
+                          class="p-2 text-rose-500 hover:bg-rose-500/10 rounded-lg transition-all"
+                        >
+                          <span><i data-lucide="trash-2" class="w-4 h-4"></i></span>
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                <div class="space-y-2 relative">
+                  <span class="text-2xs font-bold text-slate-500 uppercase tracking-widest block">Novo Integrante</span>
+                  <div class="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="Busque por nome ou matrícula para adicionar..."
+                      value={novoIntegranteEdit}
+                      onChange={(e) => handleIntegranteInput(e.target.value)}
+                      onFocus={() => setShowIntegranteDropdown(true)}
+                      onBlur={() => setTimeout(() => setShowIntegranteDropdown(false), 200)}
+                      class="glass-input flex-grow px-3 py-2.5 rounded-xl text-sm focus:outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={addIntegranteLocal}
+                      class="px-4 bg-indigo-600 hover:bg-indigo-500 rounded-xl font-bold text-white text-sm"
+                    >
+                      + Add
+                    </button>
+                  </div>
+
+                  {showIntegranteDropdown && filteredIntegrantes.length > 0 && (
+                    <div class="absolute z-10 w-full mt-1 bg-slate-900 border border-slate-800 rounded-xl max-h-40 overflow-y-auto shadow-2xl">
+                      {filteredIntegrantes.map(ag => (
+                        <button
+                          key={ag.matricula}
+                          type="button"
+                          onClick={() => {
+                            const formatado = {
+                              nome: ag.nome,
+                              matricula: ag.matricula,
+                              papel: 'Patrulheiro'
+                            };
+                            if (!equipeEdit.some(x => x.nome.trim().toLowerCase() === formatado.nome.trim().toLowerCase())) {
+                              setEquipeEdit([...equipeEdit, formatado]);
+                            }
+                            setNovoIntegranteEdit('');
+                            setShowIntegranteDropdown(false);
+                          }}
+                          class="w-full text-left px-4 py-3 hover:bg-slate-800 border-b border-slate-800/50 text-sm text-slate-200"
+                        >
+                          {ag.nome}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 pt-2">
+                  <button
+                    onClick={() => setModalEquipe(false)}
+                    class="py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-sm transition-all"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    onClick={salvarNovaEquipe}
+                    class="py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-sm transition-all shadow-md shadow-indigo-600/10"
+                  >
+                    Salvar Equipe
+                  </button>
+                </div>
+
+              </div>
+            </div>
+          )}
+
+          {/* MODAL MOVIMENTAÇÃO */}
+          {modalMovimento && (
+            <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+              <div class="glass-card w-full max-w-sm rounded-3xl p-6 space-y-6 max-h-[90vh] overflow-y-auto">
+                
+                <div class="flex justify-between items-center">
+                  <h3 class="text-lg font-bold font-outfit text-white flex items-center gap-2">
+                    <i data-lucide="refresh-cw" class="w-5 h-5 text-indigo-400"></i>
+                    {movTipo === 'deixei_via' && 'Deixar na Via'}
+                    {movTipo === 'recolhi_via' && 'Recolher da Via'}
+                    {movTipo === 'peguei_base' && 'Pegar na Base'}
+                    {movTipo === 'devolvi_base' && 'Devolver à Base'}
+                  </h3>
+                  <button onClick={closeMovimentoModal} class="text-slate-400 hover:text-white">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                  </button>
+                </div>
+
+                {movTipo === 'recolhi_via' && (
+                  <div class="space-y-2">
+                    <label class="block text-2xs font-bold text-slate-500 uppercase tracking-widest">Selecionar Lote de Rua para Recolhimento</label>
+                    <select
+                      value={selectedLoteId}
+                      onChange={(e) => {
+                        const lotId = e.target.value;
+                        setSelectedLoteId(lotId);
+                        
+                        if (lotId === 'outro' || !lotId) {
+                          setSelectedLoteChecklistId('');
+                          setMovMaterialId(listaMateriais[0]?.id || '');
+                          setMovQuantidade(1);
+                          setEnderecoManual('');
+                        } else {
+                          const selectedLot = lotesAtivos.find(l => l.id === lotId);
+                          if (selectedLot) {
+                            setSelectedLoteChecklistId(selectedLot.checklist_id);
+                            setMovMaterialId(selectedLot.material_id || 'outro');
+                            if (selectedLot.material_id === 'outro') {
+                              setMovOutroMaterialText(selectedLot.outro_material || '');
+                            }
+                            setMovQuantidade(selectedLot.quantidade_restante);
+                            
+                            if (selectedLot.gps) {
+                              setGpsStatus('sucesso');
+                              setGpsCoords(selectedLot.gps);
+                            } else {
+                              setGpsStatus('falha');
+                              setGpsCoords(null);
+                            }
+                            setEnderecoManual(selectedLot.endereco || '');
+                          }
+                        }
+                      }}
+                      class="glass-input w-full px-3 py-3 rounded-xl text-sm font-semibold focus:outline-none text-indigo-400"
+                    >
+                      <option value="">-- Escolha um Lote Ativo ou Outro --</option>
+                      {lotesAtivos.map(lot => {
+                        const matName = listaMateriais.find(m => m.id === lot.material_id)?.nome || lot.outro_material || lot.material_id;
+                        const addressText = lot.endereco ? ` - ${lot.endereco}` : '';
+                        return (
+                          <option key={lot.id} value={lot.id}>
+                            📍 {matName} ({lot.quantidade_restante} un) - {lot.viatura_id}{addressText}
+                          </option>
+                        );
+                      })}
+                      <option value="outro">⚠️ Material Não Listado / Avulso</option>
+                    </select>
+                  </div>
+                )}
+
+                {movTipo === 'recolhi_via' && selectedLoteId && selectedLoteId !== 'outro' && (
+                  <div class="p-3 bg-amber-500/5 border border-amber-500/15 rounded-2xl flex items-center justify-between gap-3 mt-2">
+                    <div class="space-y-0.5 text-left">
+                      <p class="text-xs font-bold text-amber-500">Material Não Encontrado?</p>
+                      <p class="text-4xs text-slate-400">Ative se a equipe foi até o local e a sinalização sumiu/não foi localizada.</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                      <input 
+                        type="checkbox" 
+                        checked={movNaoEncontrado} 
+                        onChange={(e) => {
+                          const val = e.target.checked;
+                          setMovNaoEncontrado(val);
+                          if (val) {
+                            setMovQuantidade(0);
+                          } else {
+                            const selectedLot = lotesAtivos.find(l => l.id === selectedLoteId);
+                            if (selectedLot) setMovQuantidade(selectedLot.quantidade_restante);
+                          }
+                        }}
+                        class="sr-only peer" 
+                      />
+                      <div class="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-400 after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-600 peer-checked:after:bg-white"></div>
+                    </label>
+                  </div>
+                )}
+
+                {movTipo === 'recolhi_via' && selectedLoteId && selectedLoteId !== 'outro' && (() => {
+                  const lot = lotesAtivos.find(l => l.id === selectedLoteId);
+                  if (!lot) return null;
+                  return (lot.observacao || lot.foto_url) ? (
+                    <div class="p-4 bg-slate-900/50 border border-slate-800/80 rounded-2xl space-y-2.5 text-left">
+                      <span class="text-2xs font-bold text-slate-500 uppercase tracking-widest block font-outfit">Informações do Lançamento</span>
+                      {lot.observacao && (
+                        <p class="text-xs text-indigo-300 italic font-semibold leading-relaxed">
+                          Obs: "{lot.observacao}"
+                        </p>
+                      )}
+                      {lot.foto_url && (
+                        <div class="relative w-24 h-20 rounded-xl overflow-hidden border border-slate-800">
+                          <img src={lot.foto_url} alt="Foto Lançamento" class="w-full h-full object-cover" />
+                        </div>
+                      )}
+                    </div>
+                  ) : null;
+                })()}
+
+                <div class="space-y-2">
+                  <label class="block text-2xs font-bold text-slate-500 uppercase tracking-widest">Selecione o Material</label>
+                  <select
+                    value={movMaterialId}
+                    onChange={(e) => setMovMaterialId(e.target.value)}
+                    disabled={selectedLoteId && selectedLoteId !== 'outro'}
+                    class="glass-input w-full px-3 py-3 rounded-xl text-sm font-semibold focus:outline-none disabled:opacity-60"
+                  >
+                    {listaMateriais.map(mat => (
+                      <option key={mat.id} value={mat.id}>{mat.nome}</option>
+                    ))}
+                    {movTipo === 'recolhi_via' && (
+                      <option value="outro">Outro Material / Não Listado</option>
+                    )}
+                  </select>
+                </div>
+
+                {movMaterialId === 'outro' && (
+                  <div class="space-y-2">
+                    <label class="block text-2xs font-bold text-amber-500 uppercase tracking-widest">Descrição do Material Extra</label>
+                    <input
+                      type="text"
+                      placeholder="Ex: Cavalete de Madeira, Placa Móvel"
+                      value={movOutroMaterialText}
+                      onChange={(e) => setMovOutroMaterialText(e.target.value)}
+                      class="glass-input w-full px-4 py-3 rounded-xl text-sm focus:outline-none border-amber-500/25"
+                    />
+                  </div>
+                )}
+
+                <div class="space-y-2">
+                  <label class="block text-2xs font-bold text-slate-500 uppercase tracking-widest">Quantidade</label>
+                  <div class="flex items-center justify-between p-2 bg-slate-900/50 border border-slate-800 rounded-xl">
+                    <button
+                      onClick={() => setMovQuantidade(Math.max(1, movQuantidade - 1))}
+                      disabled={movNaoEncontrado}
+                      class="w-10 h-10 bg-slate-850 hover:bg-slate-800 rounded-lg text-lg font-bold text-white transition-all disabled:opacity-30"
+                    >
+                      -
+                    </button>
+                    <span class="text-xl font-bold font-outfit text-white">{movQuantidade}</span>
+                    <button
+                      onClick={() => {
+                        if (movNaoEncontrado) return;
+                        const limiteVtr = viatura.carga_atual?.[movMaterialId] || 0;
+                        if (movTipo === 'deixei_via' && movQuantidade >= limiteVtr) {
+                          alert(`⚠️ Carga insuficiente no veículo! Limite de: ${limiteVtr}`);
+                          return;
+                        }
+                        const limiteBase = listaMateriais.find(m => m.id === movMaterialId)?.quantidade_patio || 0;
+                        if (movTipo === 'peguei_base' && movQuantidade >= limiteBase) {
+                          alert(`⚠️ Estoque insuficiente na base central! Limite de: ${limiteBase}`);
+                          return;
+                        }
+                        setMovQuantidade(movQuantidade + 1);
+                      }}
+                      disabled={movNaoEncontrado}
+                      class="w-10 h-10 bg-slate-850 hover:bg-slate-800 rounded-lg text-lg font-bold text-white transition-all disabled:opacity-30"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+
+                {(movTipo === 'deixei_via' || movTipo === 'recolhi_via') && (
+                  <div class="p-4 bg-slate-900/80 rounded-2xl border border-slate-800/80 space-y-3">
+                    <div class="flex items-center justify-between">
+                      <span class="text-2xs font-bold text-slate-500 uppercase tracking-widest block">Geolocalização (GPS)</span>
+                      
+                      {gpsStatus === 'buscando' && (
+                        <span class="text-2xs text-indigo-400 font-bold flex items-center gap-1.5">
+                          <span class="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-ping"></span>
+                          Buscando satélites... ({gpsCountdown}s)
+                        </span>
+                      )}
+                      
+                      {gpsStatus === 'sucesso' && (
+                        <span class="text-2xs text-emerald-400 font-bold flex items-center gap-1.5">
+                          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                          GPS Ativo
+                        </span>
+                      )}
+
+                      {gpsStatus === 'falha' && (
+                        <span class="text-2xs text-rose-400 font-bold flex items-center gap-1.5">
+                          <span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span>
+                          GPS Indisponível
+                        </span>
+                      )}
+                    </div>
+
+                    {gpsStatus === 'buscando' && (
+                       <div class="flex items-center gap-3">
+                         <div class="w-5 h-5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+                         <p class="text-xs text-slate-400">Sincronizando sinal de geolocalização...</p>
+                       </div>
+                    )}
+
+                    {gpsStatus === 'sucesso' && gpsCoords && (
+                      <div class="text-xs space-y-1 text-slate-300">
+                        <p class="font-semibold text-emerald-400 flex items-center gap-1">
+                          <span><i data-lucide="check" class="w-4 h-4"></i></span> Localização Capturada!
+                        </p>
+                        <p class="text-slate-500 font-mono">Lat: {gpsCoords.latitude.toFixed(6)} | Lng: {gpsCoords.longitude.toFixed(6)}</p>
+                      </div>
+                    )}
+
+                    {gpsStatus === 'falha' && (
+                      <div class="p-3 bg-rose-500/5 border border-rose-500/15 rounded-xl">
+                        <p class="text-xs text-rose-300 leading-relaxed">
+                          ⚠️ O sinal de satélite falhou. O endereço por escrito passou a ser obrigatório!
+                        </p>
+                      </div>
+                    )}
+
+                    {gpsStatus !== 'buscando' && (
+                      <div class="space-y-2 pt-1">
+                        <label class="block text-2xs text-slate-400 mb-1">
+                          Localização por Escrito (Rua, nº ou Referência) {gpsStatus === 'falha' ? '*' : '(Opcional para precisão)'}
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="Ex: Av. Brasil, próx. ao numeral 320"
+                          value={enderecoManual}
+                          onChange={(e) => setEnderecoManual(e.target.value)}
+                          class={`glass-input w-full px-4 py-2.5 rounded-xl text-xs focus:outline-none ${
+                            gpsStatus === 'falha' && !enderecoManual.trim() ? 'border-rose-500/35' : 'border-slate-800'
+                          }`}
+                        />
+                        
+                        {gpsStatus === 'falha' && (
+                          <button
+                            type="button"
+                            onClick={iniciarRastreamentoGPS}
+                            class="btn-tactile w-full py-2 mt-2 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/25 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all"
+                          >
+                            <span><i data-lucide="rotate-cw" class="w-3.5 h-3.5"></i></span>
+                            <span>TENTAR GPS NOVAMENTE</span>
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {movTipo === 'deixei_via' && (
+                  <div class="space-y-2">
+                    <label class="block text-2xs font-bold text-slate-500 uppercase tracking-widest text-left">Foto do Local / Sinalização (Opcional)</label>
+                    <div class="flex items-center gap-3">
+                      {movFoto ? (
+                        <div class="relative w-24 h-20 rounded-xl overflow-hidden border border-indigo-500/30">
+                          <img src={movFoto} alt="Foto Movimento" class="w-full h-full object-cover" />
+                          <button
+                            type="button"
+                            onClick={() => setMovFoto('')}
+                            class="absolute top-1 right-1 bg-red-650 hover:bg-red-500 text-white rounded-full p-1 transition-all"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                          </button>
+                        </div>
+                      ) : (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => document.getElementById('foto-movimento-camera-input').click()}
+                            disabled={loadingFotoMovimento}
+                            class="w-24 h-20 bg-indigo-950/20 hover:bg-indigo-900/20 border border-dashed border-indigo-500/30 rounded-xl flex flex-col items-center justify-center text-indigo-400 gap-1 disabled:opacity-55 btn-tactile"
+                          >
+                            {loadingFotoMovimento ? (
+                              <div class="w-5 h-5 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin"></div>
+                            ) : (
+                              <>
+                                <span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg></span>
+                                <span class="text-[9px] uppercase font-bold">Câmera</span>
+                              </>
+                            )}
+                          </button>
+                          <input
+                            id="foto-movimento-camera-input"
+                            type="file"
+                            accept="image/*"
+                            capture="environment"
+                            onChange={(e) => {
+                              if (e.target.files[0]) handleFotoMovimento(e.target.files[0]);
+                            }}
+                            class="hidden"
+                          />
+
+                          <button
+                            type="button"
+                            onClick={() => document.getElementById('foto-movimento-galeria-input').click()}
+                            disabled={loadingFotoMovimento}
+                            class="w-24 h-20 bg-slate-850 hover:bg-slate-800 border border-dashed border-slate-700 rounded-xl flex flex-col items-center justify-center text-slate-400 gap-1 disabled:opacity-55 btn-tactile"
+                          >
+                            {loadingFotoMovimento ? (
+                              <div class="w-5 h-5 border-2 border-slate-400 border-t-transparent rounded-full animate-spin"></div>
+                            ) : (
+                              <>
+                                <span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg></span>
+                                <span class="text-[9px] uppercase font-bold">Galeria</span>
+                              </>
+                            )}
+                          </button>
+                          <input
+                            id="foto-movimento-galeria-input"
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              if (e.target.files[0]) handleFotoMovimento(e.target.files[0]);
+                            }}
+                            class="hidden"
+                          />
+                        </>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {(movTipo === 'deixei_via' || movTipo === 'recolhi_via') && (
+                  <div class="space-y-2">
+                    <label class="block text-2xs font-bold text-slate-500 uppercase tracking-widest text-left">Observação (Opcional)</label>
+                    <textarea
+                      placeholder={movTipo === 'deixei_via' ? "Ex: Deixado no canteiro central próximo ao poste de luz..." : "Ex: Sinalização danificada ou recolhida com sucesso..."}
+                      value={movObservacao}
+                      onChange={(e) => setMovObservacao(e.target.value)}
+                      class="glass-input w-full px-4 py-2.5 rounded-xl text-xs focus:outline-none h-16 text-slate-200 border-slate-800"
+                    />
+                  </div>
+                )}
+
+                <div class="grid grid-cols-2 gap-4">
+                  <button
+                    type="button"
+                    onClick={closeMovimentoModal}
+                    class="py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-sm transition-all"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleConfirmarMovimentacao}
+                    disabled={((movTipo === 'deixei_via' || movTipo === 'recolhi_via') && gpsStatus === 'buscando') || loadingFotoMovimento}
+                    class="py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-sm transition-all shadow-md shadow-indigo-600/10 disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    {loadingFotoMovimento && <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>}
+                    <span>Confirmar</span>
+                  </button>
+                </div>
+
+              </div>
+            </div>
+          )}
+
+        </div>
+      );
+    }
+
+    // ==========================================
+    // TELA D: ENCERRAMENTO DE CHECK-LIST (CHECK-OUT)
+    // ==========================================
+    function ScreenEncerramento({ prefixo, viatura, checklist, listaMateriais, voltar, finalizar }) {
+      const [odometroFinal, setOdometroFinal] = useState('');
+      const [combustivelFinal, setCombustivelFinal] = useState('1/2');
+      const [cargaFisicaReal, setCargaFisicaReal] = useState({});
+      const [justificativaDivergencia, setJustificativaDivergencia] = useState('');
+      const [novasAvariasPerg, setNovasAvariasPerg] = useState(false);
+      const [novasAvariasDesc, setNovasAvariasDesc] = useState('');
+      const [novasAvariasFoto, setNovasAvariasFoto] = useState('');
+      const [listaNovasAvarias, setListaNovasAvarias] = useState([]);
+      const [fotosFechamento, setFotosFechamento] = useState([]);
+      const [erro, setErro] = useState('');
+      const [salvando, setSalvando] = useState(false);
+      const [observacoesFechamento, setObservacoesFechamento] = useState('');
+
+      const minOdo = viatura.odometro_atual || checklist.abertura.odometro;
+
+      useEffect(() => {
+        const cargaReal = {};
+        listaMateriais.forEach(mat => {
+          cargaReal[mat.id] = viatura.carga_atual?.[mat.id] || 0;
+        });
+        setCargaFisicaReal(cargaReal);
+      }, [listaMateriais, viatura]);
+
+      useEffect(() => {
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+      }, [listaNovasAvarias, novasAvariasPerg, novasAvariasFoto]);
+
+      const temDivergencia = () => {
+        let divergência = false;
+        listaMateriais.forEach(mat => {
+          const esperado = viatura.carga_atual?.[mat.id] || 0;
+          const real = cargaFisicaReal[mat.id] || 0;
+          if (esperado !== real) divergência = true;
+        });
+        return divergência;
+      };
+
+      const handleCargaFisicaChange = (id, change) => {
+        setCargaFisicaReal(prev => ({
+          ...prev,
+          [id]: Math.max(0, (prev[id] || 0) + change)
+        }));
+      };
+
+      const [loadingFotoFechamento, setLoadingFotoFechamento] = useState(false);
+      const [loadingFotoAvaria, setLoadingFotoAvaria] = useState(false);
+
+      const handleAddFotoFechamento = async (file) => {
+        if (!file) return;
+        setLoadingFotoFechamento(true);
+        try {
+          const url = await uploadFoto(file);
+          setFotosFechamento(prev => [...prev, url]);
+        } catch (err) {
+          alert('Erro ao carregar a foto de encerramento: ' + err.message);
+        } finally {
+          setLoadingFotoFechamento(false);
+        }
+      };
+
+      const handleFotoAvaria = async (file) => {
+        if (!file) return;
+        setLoadingFotoAvaria(true);
+        try {
+          const url = await uploadFoto(file);
+          setNovasAvariasFoto(url);
+        } catch (err) {
+          alert('Erro ao carregar a foto de avaria: ' + err.message);
+        } finally {
+          setLoadingFotoAvaria(false);
+        }
+      };
+
+      const handleAddAvaria = () => {
+        if (!novasAvariasDesc.trim()) {
+          alert('Por favor, digite a descrição da avaria.');
+          return;
+        }
+        const nova = {
+          id: 'AV_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+          descricao: novasAvariasDesc.trim(),
+          fotoUrl: novasAvariasFoto,
+          data_registro: new Date().toISOString()
+        };
+        setListaNovasAvarias(prev => [...prev, nova]);
+        setNovasAvariasDesc('');
+        setNovasAvariasFoto('');
+      };
+
+      const handleRemoveAvaria = (id) => {
+        setListaNovasAvarias(prev => prev.filter(av => av.id !== id));
+      };
+
+      const handleEncerrarPlantao = async () => {
+        setErro('');
+
+        if (!odometroFinal || isNaN(odometroFinal)) {
+          setErro('Informe o odômetro final em número.');
+          window.scrollTo(0, 0);
+          return;
+        }
+
+        if (parseInt(odometroFinal) < minOdo) {
+          setErro(`Odômetro menor que o registrado na abertura (${minOdo} km).`);
+          window.scrollTo(0, 0);
+          return;
+        }
+
+        if (temDivergencia() && !justificativaDivergencia.trim()) {
+          setErro('Divergência detectada no estoque. Descreva uma justificativa obrigatoriamente.');
+          return;
+        }
+
+        if (fotosFechamento.length < 1) {
+          setErro('É exigida pelo menos 1 foto obrigatória de fechamento.');
+          return;
+        }
+
+        if (novasAvariasPerg && listaNovasAvarias.length === 0 && !novasAvariasDesc.trim()) {
+          setErro('Por favor, informe a descrição detalhada de pelo menos uma nova avaria.');
+          return;
+        }
+
+        setSalvando(true);
+
+        let avariasParaEnviar = [...listaNovasAvarias];
+        if (novasAvariasPerg && novasAvariasDesc.trim()) {
+          avariasParaEnviar.push({
+            descricao: novasAvariasDesc.trim(),
+            fotoUrl: novasAvariasFoto,
+            data_registro: new Date().toISOString()
+          });
+        }
+
+        const checklistFechadoData = {
+          odometro_final: parseInt(odometroFinal),
+          combustivel_final: combustivelFinal,
+          fotos: fotosFechamento,
+          carga_final_real: cargaFisicaReal,
+          carga_final_esperada: viatura.carga_atual || {},
+          divergencia_justificativa: temDivergencia() ? justificativaDivergencia : null,
+          observacoes: observacoesFechamento,
+          novas_avarias: novasAvariasPerg ? avariasParaEnviar.map(av => ({
+            descricao: av.descricao,
+            fotoUrl: av.fotoUrl || '',
+            data_registro: av.data_registro || new Date().toISOString()
+          })) : []
+        };
+
+        try {
+          await fecharChecklist(prefixo, checklist.id, checklistFechadoData);
+          finalizar();
+        } catch (err) {
+          setErro('Erro ao salvar encerramento no banco. Verifique a rede.');
+        } finally {
+          setSalvando(false);
+        }
+      };
+
+      return (
+        <div class="space-y-6">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+            <button onClick={voltar} class="p-2 bg-slate-800/40 rounded-xl text-slate-400 hover:text-white">
+              <i data-lucide="arrow-left" class="w-5 h-5"></i>
+            </button>
+            <div class="text-right">
+              <h2 class="text-2xl font-bold font-outfit text-white">{prefixo}</h2>
+              <p class="text-xs text-slate-400">Check-out de Fechamento</p>
+            </div>
+          </div>
+
+          {erro && (
+            <div class="p-4 bg-rose-500/10 border border-rose-500/20 text-rose-300 text-sm rounded-xl flex items-start gap-2">
+              <i data-lucide="alert-circle" class="w-5 h-5 shrink-0 mt-0.5"></i>
+              <span>{erro}</span>
+            </div>
+          )}
+
+          <div class="glass-card rounded-2xl p-5 space-y-4">
+            <h3 class="text-sm font-bold uppercase tracking-wider text-rose-400 flex items-center gap-2">
+              <i data-lucide="gauge" class="w-4 h-4"></i>
+              Métricas Finais do Veículo
+            </h3>
+            
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs text-slate-400 mb-1">Odômetro Final</label>
+                <input
+                  type="number"
+                  placeholder={`Mínimo: ${minOdo} km`}
+                  value={odometroFinal}
+                  onChange={(e) => setOdometroFinal(e.target.value)}
+                  class="glass-input w-full px-4 py-3 rounded-xl text-sm font-bold focus:outline-none"
+                />
+              </div>
+              
+              <div>
+                <label class="block text-xs text-slate-400 mb-1">Nível de Combustível</label>
+                <select
+                  value={combustivelFinal}
+                  onChange={(e) => setCombustivelFinal(e.target.value)}
+                  class="glass-input w-full px-3 py-3 rounded-xl text-sm font-bold focus:outline-none text-rose-400"
+                >
+                  <option value="Reserva">Reserva ⚠️</option>
+                  <option value="1/4">1/4</option>
+                  <option value="1/2">1/2</option>
+                  <option value="3/4">3/4</option>
+                  <option value="Cheio">Cheio ⛽</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass-card rounded-2xl p-5 space-y-4">
+            <h3 class="text-sm font-bold uppercase tracking-wider text-rose-400 flex items-center gap-2">
+              <i data-lucide="clipboard" class="w-4 h-4"></i>
+              Conferência Física de Carga
+            </h3>
+            <p class="text-xs text-slate-400 -mt-2">Conte fisicamente os materiais na viatura.</p>
+
+            <div class="space-y-3">
+              {listaMateriais.map(mat => {
+                const esperado = viatura.carga_atual?.[mat.id] || 0;
+                const real = cargaFisicaReal[mat.id] || 0;
+                const dif = real - esperado;
+
+                return (
+                  <div key={mat.id} class="p-3 bg-navy-900/40 border border-slate-800 rounded-xl flex items-center justify-between">
+                    <div>
+                      <h4 class="text-sm font-semibold text-slate-200">{mat.nome}</h4>
+                      <div class="flex items-center gap-2 mt-0.5">
+                        <span class="text-2xs text-slate-500">Teórico Esperado: {esperado}</span>
+                        {dif !== 0 && (
+                          <span class={`text-2xs px-1.5 py-0.5 rounded font-extrabold ${dif > 0 ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'}`}>
+                            {dif > 0 ? `+${dif}` : dif}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => handleCargaFisicaChange(mat.id, -1)}
+                        class="w-8 h-8 flex items-center justify-center bg-slate-800 hover:bg-slate-700 active:bg-slate-900 text-slate-300 rounded-lg text-lg font-bold transition-all"
+                      >
+                        -
+                      </button>
+                      <span class="w-6 text-center text-base font-bold font-outfit text-white">
+                        {real}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleCargaFisicaChange(mat.id, 1)}
+                        class="w-8 h-8 flex items-center justify-center bg-slate-800 hover:bg-slate-700 active:bg-slate-900 text-slate-300 rounded-lg text-lg font-bold transition-all"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {temDivergencia() && (
+              <div class="space-y-2 border-t border-slate-800/80 pt-3">
+                <label class="block text-xs font-bold text-amber-400">⚠️ Justificativa de Divergência de Estoque*</label>
+                <textarea
+                  placeholder="Explique o motivo do saldo físico divergir do saldo teórico esperado..."
+                  value={justificativaDivergencia}
+                  onChange={(e) => setJustificativaDivergencia(e.target.value)}
+                  class="glass-input w-full p-3 rounded-xl text-xs focus:outline-none h-20 text-slate-200 border-amber-500/25"
+                />
+              </div>
+            )}
+          </div>
+
+          <div class="glass-card rounded-2xl p-5 border border-amber-500/10 bg-amber-500/2 space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="text-sm font-bold uppercase tracking-wider text-amber-400 flex items-center gap-2">
+                <i data-lucide="shield-alert" class="w-4 h-4"></i>
+                Houve Novas Avarias/Batidas?
+              </h3>
+              
+              <div class="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setNovasAvariasPerg(true)}
+                  class={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                    novasAvariasPerg 
+                      ? 'bg-amber-600 text-white' 
+                      : 'bg-slate-800 text-slate-500'
+                  }`}
+                >
+                  SIM
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setNovasAvariasPerg(false);
+                    setListaNovasAvarias([]);
+                    setNovasAvariasDesc('');
+                    setNovasAvariasFoto('');
+                  }}
+                  class={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                    !novasAvariasPerg 
+                      ? 'bg-slate-700 text-slate-300' 
+                      : 'bg-slate-850 text-slate-500'
+                  }`}
+                >
+                  NÃO
+                </button>
+              </div>
+            </div>
+
+            {novasAvariasPerg && (
+              <div class="space-y-4 pt-2 border-t border-slate-800/80">
+                {listaNovasAvarias.length > 0 && (
+                  <div class="space-y-2 mb-3">
+                    <label class="block text-2xs font-extrabold uppercase tracking-wider text-slate-400">Avarias Registradas neste Fechamento ({listaNovasAvarias.length})</label>
+                    <div class="grid grid-cols-1 gap-2">
+                      {listaNovasAvarias.map((av) => (
+                        <div key={av.id} class="flex items-center justify-between p-3 bg-slate-900/60 border border-slate-800 rounded-xl gap-3">
+                          <div class="flex items-center gap-3">
+                            {av.fotoUrl ? (
+                              <img src={av.fotoUrl} alt="Nova avaria" class="w-12 h-12 object-cover rounded-lg border border-slate-700 shrink-0" />
+                            ) : (
+                              <div class="w-12 h-12 rounded-lg bg-slate-800 flex items-center justify-center text-slate-500 shrink-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><line x1="2" y1="2" x2="22" y2="22"/><path d="M21 16V6a2 2 0 0 0-2-2H9m-4 0a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11m4-4-4-4-2.828 2.828a2 2 0 0 1-2.828 0L9 13l-3 3"/><circle cx="9" cy="9" r="2"/></svg>
+                              </div>
+                            )}
+                            <p class="text-xs text-slate-250 font-medium line-clamp-2">{av.descricao}</p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveAvaria(av.id)}
+                            class="p-2 hover:bg-red-950/30 text-red-400 hover:text-red-300 rounded-lg transition-all shrink-0"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2M10 11v6M14 11v6"/></svg>
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div class="bg-navy-950/30 p-4 border border-slate-850 rounded-xl space-y-4">
+                  <label class="block text-xs font-bold text-amber-300/80 uppercase tracking-wider">Nova Avaria</label>
+                  <div>
+                    <label class="block text-xs text-slate-400 mb-1">Descrição do Ocorrido/Avaria*</label>
+                    <input
+                      type="text"
+                      placeholder="Ex: Pequeno amassado no para-choque dianteiro..."
+                      value={novasAvariasDesc}
+                      onChange={(e) => setNovasAvariasDesc(e.target.value)}
+                      class="glass-input w-full px-4 py-3 rounded-xl text-sm focus:outline-none border-amber-500/25"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label class="block text-xs text-slate-400 mb-2">Foto da Nova Avaria</label>
+                    <div class="flex items-center gap-3">
+                      {novasAvariasFoto ? (
+                        <div class="relative w-20 h-20 rounded-xl border border-slate-700 overflow-hidden">
+                          <img src={novasAvariasFoto} alt="Nova avaria" class="w-full h-full object-cover" />
+                          <button
+                            type="button"
+                            onClick={() => setNovasAvariasFoto('')}
+                            class="absolute top-1 right-1 p-1 bg-red-600 rounded-full text-white"
+                          >
+                            <span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-2.5 h-2.5"><path d="M18 6 6 18M6 6l12 12"/></svg></span>
+                          </button>
+                        </div>
+                      ) : (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => document.getElementById('foto-avaria-fechamento-camera-input').click()}
+                            disabled={loadingFotoAvaria}
+                            class="w-24 h-20 bg-indigo-950/20 hover:bg-indigo-900/20 border border-dashed border-indigo-500/30 rounded-xl flex flex-col items-center justify-center text-indigo-400 gap-1 disabled:opacity-55 btn-tactile"
+                          >
+                            {loadingFotoAvaria ? (
+                              <div class="w-5 h-5 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin"></div>
+                            ) : (
+                              <>
+                                <span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg></span>
+                                <span class="text-[9px] uppercase font-bold">Câmera</span>
+                              </>
+                            )}
+                          </button>
+                          <input
+                            id="foto-avaria-fechamento-camera-input"
+                            type="file"
+                            accept="image/*"
+                            capture="environment"
+                            onChange={(e) => {
+                              if (e.target.files[0]) handleFotoAvaria(e.target.files[0]);
+                            }}
+                            class="hidden"
+                          />
+
+                          <button
+                            type="button"
+                            onClick={() => document.getElementById('foto-avaria-fechamento-galeria-input').click()}
+                            disabled={loadingFotoAvaria}
+                            class="w-24 h-20 bg-slate-850 hover:bg-slate-800 border border-dashed border-slate-700 rounded-xl flex flex-col items-center justify-center text-slate-400 gap-1 disabled:opacity-55 btn-tactile"
+                          >
+                            {loadingFotoAvaria ? (
+                              <div class="w-5 h-5 border-2 border-slate-400 border-t-transparent rounded-full animate-spin"></div>
+                            ) : (
+                              <>
+                                <span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg></span>
+                                <span class="text-[9px] uppercase font-bold">Galeria</span>
+                              </>
+                            )}
+                          </button>
+                          <input
+                            id="foto-avaria-fechamento-galeria-input"
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              if (e.target.files[0]) handleFotoAvaria(e.target.files[0]);
+                            }}
+                            class="hidden"
+                          />
+                        </>
+                      )}
+                    </div>
+                  </div>
+
+                  <div class="flex justify-end pt-2">
+                    <button
+                      type="button"
+                      onClick={handleAddAvaria}
+                      disabled={!novasAvariasDesc.trim() || loadingFotoAvaria}
+                      class="px-4 py-2.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 disabled:opacity-40 disabled:pointer-events-none rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 btn-tactile"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                      ADICIONAR ESTA AVARIA
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div class="glass-card rounded-2xl p-5 space-y-4">
+            <h3 class="text-sm font-bold uppercase tracking-wider text-rose-400 flex items-center gap-2">
+              <i data-lucide="camera" class="w-4 h-4"></i>
+              Fotos Obrigatórias de Fechamento*
+            </h3>
+            <p class="text-xs text-slate-400 -mt-2">Tire pelo menos 1 foto nítida do veículo.</p>
+
+            <div class="grid grid-cols-3 gap-3">
+              {fotosFechamento.map((url, i) => (
+                <div key={i} class="relative w-full h-24 rounded-xl border border-slate-800 overflow-hidden">
+                  <img src={url} alt="Fechamento" class="w-full h-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => setFotosFechamento(fotosFechamento.filter((_, idx) => idx !== i))}
+                    class="absolute top-1 right-1 p-1 bg-red-600 rounded-full text-white text-xs"
+                  >
+                    <span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3 h-3"><path d="M18 6 6 18M6 6l12 12"/></svg></span>
+                  </button>
+                </div>
+              ))}
+              
+              <div class="grid grid-cols-2 gap-3 w-full col-span-3">
+                <button
+                  type="button"
+                  onClick={() => document.getElementById('foto-fechamento-camera-input').click()}
+                  disabled={loadingFotoFechamento}
+                  class="h-24 bg-rose-950/20 hover:bg-rose-900/20 text-rose-400 border border-dashed border-rose-500/30 rounded-xl flex flex-col items-center justify-center gap-1 transition-all disabled:opacity-55 btn-tactile"
+                >
+                  {loadingFotoFechamento ? (
+                    <div class="w-6 h-6 border-2 border-rose-400 border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+                      <span class="text-2xs font-semibold uppercase tracking-wider">Câmera</span>
+                    </>
+                  )}
+                </button>
+                <input
+                  id="foto-fechamento-camera-input"
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  onChange={(e) => {
+                    if (e.target.files[0]) handleAddFotoFechamento(e.target.files[0]);
+                  }}
+                  class="hidden"
+                />
+
+                <button
+                  type="button"
+                  onClick={() => document.getElementById('foto-fechamento-galeria-input').click()}
+                  disabled={loadingFotoFechamento}
+                  class="h-24 bg-slate-800/40 hover:bg-slate-800 text-slate-400 border border-dashed border-slate-700 hover:border-slate-500 rounded-xl flex flex-col items-center justify-center gap-1 transition-all disabled:opacity-55 btn-tactile"
+                >
+                  {loadingFotoFechamento ? (
+                    <div class="w-6 h-6 border-2 border-slate-400 border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                      <span class="text-2xs font-semibold uppercase tracking-wider">Galeria</span>
+                    </>
+                  )}
+                </button>
+                <input
+                  id="foto-fechamento-galeria-input"
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    if (e.target.files[0]) handleAddFotoFechamento(e.target.files[0]);
+                  }}
+                  class="hidden"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* OBSERVAÇÕES GERAIS */}
+          <div class="glass-card rounded-2xl p-5 space-y-4">
+            <h3 class="text-sm font-bold uppercase tracking-wider text-rose-400 flex items-center gap-2">
+              <i data-lucide="message-square" class="w-4 h-4"></i>
+              Observações de Fechamento
+            </h3>
+            <p class="text-xs text-slate-400 -mt-2">Registre qualquer ocorrência, alteração ou observação relevante sobre o plantão.</p>
+            <textarea
+              placeholder="Descreva aqui observações gerais sobre a viatura, materiais ou ocorrências do plantão..."
+              value={observacoesFechamento}
+              onChange={(e) => setObservacoesFechamento(e.target.value)}
+              class="glass-input w-full p-4 rounded-xl text-sm focus:outline-none h-24 text-slate-200"
+            />
+          </div>
+
+          <button
+            type="button"
+            onClick={handleEncerrarPlantao}
+            disabled={salvando}
+            class="btn-tactile w-full py-4.5 bg-rose-600 hover:bg-rose-500 active:bg-rose-700 text-white rounded-2xl text-base font-bold transition-all shadow-lg shadow-rose-600/25 disabled:opacity-50"
+          >
+            {salvando ? (
+              <div class="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto"></div>
+            ) : (
+              'CONCLUIR E ENCERRAR PLANTÃO'
+            )}
+          </button>
+
+        </div>
+      );
+    }
+
+    const rootElement = document.getElementById('root');
+    const root = ReactDOM.createRoot(rootElement);
+    root.render(<App />);
+  </script>
+</body>
+</html>

@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Gradiente radial escuro premium para o fundo -->
+    <radialGradient id="bgGrad" cx="50%" cy="50%" r="75%">
+      <stop offset="0%" stop-color="#073b75" />
+      <stop offset="100%" stop-color="#021c3b" />
+    </radialGradient>
+  </defs>
+
+  <!-- Fundo preenchendo 100% da tela para remover a borda branca -->
+  <rect width="512" height="512" fill="url(#bgGrad)" />
+
+  <g transform="translate(0, 15)">
+    <!-- 1. Arco do Escudo em Branco -->
+    <path d="M 175,290 L 175,170 C 175,112 212,90 256,90 C 300,90 337,112 337,170 L 337,230" 
+          fill="none" 
+          stroke="#ffffff" 
+          stroke-width="12" 
+          stroke-linecap="round" 
+          stroke-linejoin="round" />
+
+    <!-- 2. Viatura de Frente (Branco com detalhes) -->
+    <!-- Rodas -->
+    <rect x="194" y="304" width="18" height="18" rx="4" fill="#ffffff" />
+    <rect x="300" y="304" width="18" height="18" rx="4" fill="#ffffff" />
+
+    <!-- Linha de Terra -->
+    <line x1="168" y1="320" x2="344" y2="320" stroke="#ffffff" stroke-width="8" stroke-linecap="round" />
+
+    <!-- Carroceria -->
+    <path d="M 210,165 L 302,165 L 314,205 L 198,205 Z" fill="#ffffff" />
+    <path d="M 192,205 C 182,205 180,212 180,225 L 182,295 C 182,302 188,308 195,308 L 317,308 C 324,308 330,302 330,295 L 332,225 C 332,212 330,205 320,205 Z" fill="#ffffff" />
+    
+    <!-- Para-brisa (Escuro) -->
+    <polygon points="214,170 298,170 308,200 204,200" fill="#052c59" />
+
+    <!-- Faróis -->
+    <rect x="194" y="216" width="20" height="10" rx="3" fill="#052c59" />
+    <rect x="298" y="216" width="20" height="10" rx="3" fill="#052c59" />
+    <circle cx="204" cy="221" r="3" fill="#ffffff" />
+    <circle cx="308" cy="221" r="3" fill="#ffffff" />
+
+    <!-- Grade -->
+    <rect x="230" y="216" width="52" height="12" rx="3" fill="#052c59" />
+    <line x1="238" y1="222" x2="274" y2="222" stroke="#ffffff" stroke-width="3" stroke-linecap="round" />
+
+    <!-- 3. Cone de Trânsito (Sobreposto à direita) -->
+    <g>
+      <!-- Base do Cone -->
+      <ellipse cx="330" cy="328" rx="46" ry="10" fill="#e25100" />
+      <ellipse cx="330" cy="326" rx="46" ry="10" fill="#ff5e00" />
+      
+      <!-- Corpo Laranja do Cone -->
+      <path d="M 315,190 C 315,188 345,188 345,190 L 372,315 L 288,315 Z" fill="#ff5e00" />
+      
+      <!-- Faixa Branca Inferior -->
+      <path d="M 297,298 Q 330,304 363,298 L 358,275 Q 330,281 302,275 Z" fill="#ffffff" />
+      
+      <!-- Faixa Branca Superior -->
+      <path d="M 307,258 Q 330,264 353,258 L 348,235 Q 330,240 312,235 Z" fill="#ffffff" />
+      
+      <!-- Topo do Cone -->
+      <path d="M 316,210 L 344,210 L 345,190 L 315,190 Z" fill="#ff5e00" />
+    </g>
+
+    <!-- 4. Engrenagem com Checkmark (Centro Inferior) -->
+    <g transform="translate(256, 356)">
+      <!-- Círculo Central da Engrenagem -->
+      <circle cx="0" cy="0" r="30" fill="none" stroke="#ffffff" stroke-width="7" />
+      <!-- Dentes da Engrenagem -->
+      <g stroke="#ffffff" stroke-width="7" stroke-linecap="round">
+        <line x1="0" y1="-30" x2="0" y2="-38" />
+        <line x1="0" y1="30" x2="0" y2="38" />
+        <line x1="-30" y1="0" x2="-38" y2="0" />
+        <line x1="30" y1="0" x2="38" y2="0" />
+        <line x1="-21" y1="-21" x2="-27" y2="-27" />
+        <line x1="21" y1="21" x2="27" y2="27" />
+        <line x1="-21" y1="21" x2="-27" y2="27" />
+        <line x1="21" y1="-21" x2="27" y2="-27" />
+      </g>
+      <!-- Checkmark interno -->
+      <path d="M -11,-2 L -3,6 L 11,-8" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+    </g>
+
+    <!-- 5. Pin de Localização (Canto Esquerdo Inferior) -->
+    <g transform="translate(206, 362)">
+      <!-- Corpo do Pin -->
+      <path d="M 0,0 C -12,-12 -18,-22 -18,-30 C -18,-40 -10,-48 0,-48 C 10,-48 18,-40 18,-30 C 18,-22 12,-12 0,0 Z" 
+            fill="#a2b4c7" />
+      <!-- Círculo Interno do Pin -->
+      <circle cx="0" cy="-30" r="5" fill="#ffffff" />
+    </g>
+  </g>
+</svg>

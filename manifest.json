@@ -1,0 +1,37 @@
+{
+  "name": "Frota DEMUTRAN",
+  "short_name": "Frota DEMUTRAN",
+  "description": "Aplicativo de Controle Operacional de Frota e Sinalização de Trânsito para agentes de rua.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#080c14",
+  "theme_color": "#080c14",
+  "scope": "./",
+  "icons": [
+    {
+      "src": "./icon_192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon_192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "./icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

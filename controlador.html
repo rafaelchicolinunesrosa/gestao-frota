@@ -1,0 +1,2788 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel do Controlador - Frota DEMUTRAN</title>
+  
+  <!-- Fontes Premium do Google (Outfit e Inter) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS para Estilização Instantânea e Responsiva -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Script para customizações de tema do Tailwind (Sleek Dark Navy / Glassmorphism) -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            outfit: ['Outfit', 'sans-serif'],
+          },
+          colors: {
+            navy: {
+              50: '#f0f3f9',
+              100: '#dde4f2',
+              800: '#1e293b',
+              900: '#0f172a',
+              950: '#030712'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- Estilos Adicionais para Vidro Fosco, Animações e Scrollbars Premium -->
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #050811;
+      color: #f3f4f6;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.08) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(16, 185, 129, 0.04) 0px, transparent 50%),
+        radial-gradient(at 50% 100%, rgba(244, 63, 94, 0.04) 0px, transparent 50%);
+      background-attachment: fixed;
+    }
+    .glass-card {
+      background: rgba(15, 23, 42, 0.55);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .glass-input {
+      background: rgba(8, 12, 24, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: #ffffff;
+    }
+    .glass-input:focus {
+      border-color: #6366f1;
+      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+    }
+    .btn-tactile:active {
+      transform: scale(0.97);
+    }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    
+    /* Scrollbar estilizada */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.1);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(99, 102, 241, 0.2);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(99, 102, 241, 0.4);
+    }
+  </style>
+
+  <!-- React 18 e ReactDOM 18 (Produção) -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+
+  <!-- Babel Standalone para transpilar JSX no navegador em tempo real -->
+  <script src="https://unpkg.com/@babel/standalone@7/babel.min.js"></script>
+
+  <!-- Biblioteca de Ícones Lucide -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Interceptor vanilla imediato caso o React falhe em inicializar -->
+  <script>
+    window.startupErrors = [];
+    window.addEventListener('error', function(e) {
+      window.startupErrors.push({
+        message: e.message,
+        filename: e.filename ? e.filename.split('/').pop() : 'unknown',
+        lineno: e.lineno,
+        colno: e.colno,
+        stack: e.error ? e.error.stack : null
+      });
+
+      // Tenta limpar caches e desregistrar Service Workers para forçar a recuperação em segundo plano
+      try {
+        if ('caches' in window) {
+          caches.keys().then(function(keys) {
+            keys.forEach(function(key) { caches.delete(key); });
+          });
+        }
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistrations().then(function(regs) {
+            regs.forEach(function(r) { r.unregister(); });
+          });
+        }
+      } catch (err) {
+        console.error('Erro ao limpar cache:', err);
+      }
+      
+      setTimeout(function() {
+        var root = document.getElementById('root');
+        if (root && root.innerHTML.includes('Carregando Painel do Supervisor...')) {
+          root.innerHTML = `
+            <div class="flex items-center justify-center min-h-screen bg-[#050811] text-white p-6 w-full">
+              <div class="text-center space-y-4 max-w-sm bg-[#1e293b]/70 backdrop-blur-md border border-rose-500/20 p-6 rounded-3xl shadow-2xl">
+                <div class="inline-flex p-3 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-2xl mb-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-8.5 h-8.5 text-rose-400 mx-auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                </div>
+                <h2 class="text-xl font-bold font-outfit text-rose-300">Erro de Inicialização</h2>
+                <p class="text-sm text-slate-400 leading-relaxed">
+                  Ocorreu uma falha crítica ao carregar o painel do supervisor. Detalhes:
+                </p>
+                <div class="text-left bg-rose-950/40 border border-rose-500/30 rounded-xl p-3.5 mt-3 text-xs font-mono text-rose-300 overflow-x-auto space-y-1">
+                  <div class="font-bold text-sm">❌ \${e.message}</div>
+                  <div class="opacity-90">Arquivo: <span class="text-white font-bold">\${e.filename}</span> (Linha \${e.lineno}:\${e.colno})</div>
+                </div>
+                <button onclick="window.location.reload()" class="w-full py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-sm font-semibold transition-all mt-4 shadow-lg border border-slate-700/50">
+                  Recarregar Página
+                </button>
+              </div>
+            </div>
+          `;
+        }
+      }, 300);
+    });
+  </script>
+</head>
+<body class="min-h-screen flex flex-col justify-between overflow-x-hidden antialiased">
+
+  <div id="root" class="flex flex-col min-h-screen w-full relative">
+    <div class="flex items-center justify-center min-h-screen">
+      <div class="text-center">
+        <div class="inline-block w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+        <p class="mt-4 text-gray-400 font-medium text-sm">Carregando Painel do Supervisor...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase SDK v8 (Compat) -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+
+  <script src="./firebase.js?v=1.1.2"></script>
+
+  <!-- Script em React/JSX transpiled no navegador -->
+  <script type="text/babel">
+    const firebaseApp = window.FirebaseApp || {};
+    const {
+      isDemoMode,
+      listenTodasViaturas,
+      listenMateriais,
+      getAgentes,
+      loginSupervisor,
+      registrarTrocaOleo,
+      atualizarViaturaStatus,
+      adicionarViatura,
+      resolverAvaria,
+      adicionarAgente,
+      atualizarPatioEstoque,
+      deletarViatura,
+      deletarAgente,
+      deletarDispositivo,
+      listenTodasViaturas: listenTodasViaturasReal, // Rename to avoid duplicates
+      listenTodosChecklists,
+      darBaixaLoteRua,
+      adicionarMaterialCustom,
+      deletarMaterial,
+      adicionarSupervisor,
+      uploadFoto,
+      gerarCodigoAtivacao,
+      listenDispositivos,
+      revogarDispositivo,
+      autorizarDispositivo,
+      listenCodigosAtivacaoAtivos,
+      backupBancoDeDados,
+      restaurarBancoDeDados
+    } = firebaseApp;
+
+    // Função global para gerar PDF do histórico operacional de uma viatura
+    function gerarRelatorioPDF(viatura) {
+      const printWindow = window.open('', '_blank');
+      
+      const avariasAtivas = viatura.avarias_ativas || [];
+      const historico = viatura.historico || [];
+      
+      const historicoHTML = historico.map(h => {
+        let tag = '';
+        let cor = '';
+        if (h.tipo === 'baixa') {
+          tag = 'BAIXA OPERACIONAL';
+          cor = 'color: #e11d48; font-weight: bold;';
+        } else if (h.tipo === 'retorno_servico') {
+          tag = 'RETORNO A SERVIÇO';
+          cor = 'color: #0d9488; font-weight: bold;';
+        } else if (h.tipo === 'avaria_registrada') {
+          tag = 'AVARIA REGISTRADA';
+          cor = 'color: #d97706; font-weight: bold;';
+        } else if (h.tipo === 'avaria_resolvida') {
+          tag = 'AVARIA RESOLVIDA/CONSERTADA';
+          cor = 'color: #2563eb; font-weight: bold;';
+        } else if (h.tipo === 'plantao_encerrado') {
+          tag = 'PLANTÃO ENCERRADO';
+          cor = 'color: #64748b; font-weight: bold;';
+        }
+        
+        return `
+          <tr style="border-bottom: 1px solid #eee;">
+            <td style="padding: 10px; font-size: 12px; color: #555;">${new Date(h.data).toLocaleString('pt-BR')}</td>
+            <td style="padding: 10px; font-size: 12px; ${cor}">${tag}</td>
+            <td style="padding: 10px; font-size: 12px; color: #333;">
+              ${h.observacao || ''}
+              ${h.avaria_descricao ? `<div style="margin-top: 4px;"><b>Descrição da Avaria:</b> ${h.avaria_descricao}</div>` : ''}
+              ${h.origem ? `<div style="margin-top: 2px; font-size: 10px; color: #777;"><b>Registrado em:</b> ${h.origem}</div>` : ''}
+            </td>
+          </tr>
+        `;
+      }).reverse().join('');
+
+      const avariasHTML = avariasAtivas.map(av => `
+        <div style="border: 1px solid #ddd; padding: 12px; border-radius: 8px; margin-bottom: 12px; display: flex; gap: 15px; align-items: center; background: #fafafa;">
+          ${av.fotoUrl ? `<img src="${av.fotoUrl}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 6px; border: 1px solid #ccc;" />` : ''}
+          <div>
+            <p style="margin: 0; font-weight: bold; font-size: 13px; color: #222;">${av.descricao}</p>
+            <p style="margin: 4px 0 0 0; font-size: 11px; color: #666;">Registrado em: ${new Date(av.data_registro).toLocaleDateString('pt-BR')}</p>
+          </div>
+        </div>
+      `).join('') || '<p style="font-style: italic; color: #777; font-size: 12px;">Nenhuma avaria ativa registrada no momento.</p>';
+
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Histórico Operacional - ${viatura.prefixo}</title>
+            <style>
+              body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; padding: 30px; color: #333; line-height: 1.6; background-color: #fff; }
+              h1 { margin: 0 0 5px 0; font-size: 26px; font-weight: 800; letter-spacing: -0.5px; }
+              h2 { font-size: 16px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #333; padding-bottom: 6px; margin: 30px 0 15px 0; font-weight: 750; }
+              .header { border-bottom: 3px double #333; padding-bottom: 18px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: flex-end; }
+              .meta-grid { display: grid; grid-template-cols: repeat(3, 1fr); gap: 12px; margin-bottom: 25px; }
+              .meta-box { border: 1px solid #e2e8f0; padding: 12px; border-radius: 8px; background: #f8fafc; }
+              .meta-label { font-size: 10px; color: #64748b; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; }
+              .meta-val { font-size: 16px; font-weight: 850; margin-top: 4px; color: #1e293b; }
+              table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+              th { background: #f1f5f9; padding: 10px; border: 1px solid #cbd5e1; text-align: left; font-size: 11px; text-transform: uppercase; font-weight: bold; color: #475569; }
+              td { border: 1px solid #e2e8f0; }
+              .btn-print { padding: 10px 18px; background: #4f46e5; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 13px; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; }
+              .btn-print:hover { background: #4338ca; }
+              @media print {
+                .no-print { display: none !important; }
+                body { padding: 0; }
+              }
+            </style>
+          </head>
+          <body>
+            <div class="header">
+              <div>
+                <h1>Histórico Operacional de Veículo</h1>
+                <p style="margin: 0; color: #64748b; font-size: 13px;">Relatório Oficial de Frota DEMUTRAN & Auditoria de Ativos</p>
+              </div>
+              <div class="no-print">
+                <button onclick="window.print()" class="btn-print">🖨️ IMPRIMIR / SALVAR PDF</button>
+              </div>
+            </div>
+
+            <div class="meta-grid">
+              <div class="meta-box">
+                <div class="meta-label">Prefixo / Veículo</div>
+                <div class="meta-val">${viatura.prefixo}</div>
+              </div>
+              <div class="meta-box">
+                <div class="meta-label">Tipo</div>
+                <div class="meta-val">${viatura.tipo === 'VTR' ? 'VTR (Carro)' : 'VTM (Moto)'}</div>
+              </div>
+              <div class="meta-box">
+                <div class="meta-label">Odômetro Atual</div>
+                <div class="meta-val">${viatura.odometro_atual || 0} km</div>
+              </div>
+              <div class="meta-box">
+                <div class="meta-label">Status Atual</div>
+                <div class="meta-val">${viatura.status_atual.toUpperCase()}</div>
+              </div>
+              <div class="meta-box">
+                <div class="meta-label">Combustível</div>
+                <div class="meta-val">${viatura.combustivel_atual || '1/2'}</div>
+              </div>
+              <div class="meta-box">
+                <div class="meta-label">Avarias Ativas</div>
+                <div class="meta-val">${avariasAtivas.length}</div>
+              </div>
+            </div>
+
+            <h2>Avarias Ativas Atualmente</h2>
+            <div style="margin-bottom: 25px;">
+              ${avariasHTML}
+            </div>
+
+            <h2>Histórico Cronológico de Eventos</h2>
+            ${historico.length > 0 ? `
+              <table>
+                <thead>
+                  <tr>
+                    <th style="width: 25%">Data/Hora</th>
+                    <th style="width: 25%">Tipo de Evento</th>
+                    <th style="width: 50%">Observações / Detalhamento</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${historicoHTML}
+                </tbody>
+              </table>
+            ` : `<p style="font-style: italic; color: #64748b; font-size: 12px; text-align: center; margin-top: 20px;">Nenhum evento registrado no histórico operacional deste veículo.</p>`}
+
+            <div style="margin-top: 60px; border-top: 1px solid #e2e8f0; padding-top: 20px; font-size: 11px; color: #94a3b8; text-align: center;">
+              Relatório oficial emitido eletronicamente em ${new Date().toLocaleString('pt-BR')} - Departamento de Logística & Frota
+            </div>
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+    }
+
+    // Função global para gerar PDF do relatório de perdas
+    function gerarRelatorioPerdasPDF(lots, dataInicio, dataFim) {
+      const printWindow = window.open('', '_blank');
+      
+      const filteredPeriod = (dataInicio || dataFim)
+        ? `Período: ${dataInicio ? new Date(dataInicio + 'T00:00:00').toLocaleDateString('pt-BR') : 'Início'} até ${dataFim ? new Date(dataFim + 'T23:59:59').toLocaleDateString('pt-BR') : 'Fim'}`
+        : 'Período: Histórico Completo';
+
+      const rowsHTML = lots.map(lot => {
+        const materialName = lot.outro_material || lot.material_id;
+        const isBaixado = lot.quantidade_restante === 0;
+        
+        return `
+          <tr style="border-bottom: 1px solid #eee;">
+            <td style="padding: 10px; font-size: 11px; font-family: monospace; font-weight: bold; color: #333;">${lot.viatura_id}</td>
+            <td style="padding: 10px; font-size: 11px; color: #222;">${materialName}</td>
+            <td style="padding: 10px; font-size: 11px; font-weight: bold; color: #e11d48;">${lot.quantidade_perdida || lot.quantidade} un.</td>
+            <td style="padding: 10px; font-size: 11px; color: #555;">${lot.endereco || 'Sem endereço'}</td>
+            <td style="padding: 10px; font-size: 11px; color: #555;">${new Date(lot.data).toLocaleDateString('pt-BR')}</td>
+            <td style="padding: 10px; font-size: 11px; text-align: center;">
+              ${isBaixado 
+                ? `<span style="color: #0d9488; font-weight: bold; font-size: 10px; text-transform: uppercase;">BAIXADO</span>
+                   ${lot.baixa_obs ? `<div style="font-size: 9px; color: #777; font-style: italic; margin-top: 2px;">"${lot.baixa_obs}"</div>` : ''}` 
+                : '<span style="color: #e11d48; font-weight: bold; font-size: 10px; text-transform: uppercase;">PENDENTE</span>'}
+            </td>
+          </tr>
+        `;
+      }).join('') || '<tr><td colspan="6" style="padding: 20px; text-align: center; color: #777; font-style: italic;">Nenhum registro de perda encontrado no período selecionado.</td></tr>';
+
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Relatório Oficial de Perdas e Extravios - Frota DEMUTRAN</title>
+            <style>
+              body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; padding: 30px; color: #333; line-height: 1.6; background-color: #fff; }
+              h1 { margin: 0 0 5px 0; font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
+              h2 { font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #333; padding-bottom: 6px; margin: 25px 0 15px 0; font-weight: 750; }
+              .header { border-bottom: 3px double #333; padding-bottom: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-end; }
+              .period-badge { font-size: 12px; font-weight: bold; color: #475569; background: #f1f5f9; padding: 6px 12px; border-radius: 6px; border: 1px solid #cbd5e1; }
+              table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+              th { background: #f1f5f9; padding: 10px; border: 1px solid #cbd5e1; text-align: left; font-size: 10px; text-transform: uppercase; font-weight: bold; color: #475569; }
+              td { border: 1px solid #e2e8f0; }
+              .btn-print { padding: 10px 18px; background: #4f46e5; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; }
+              @media print {
+                .no-print { display: none !important; }
+                body { padding: 0; }
+              }
+            </style>
+          </head>
+          <body>
+            <div class="header">
+              <div>
+                <h1>Relatório de Extravios e Materiais Perdidos</h1>
+                <p style="margin: 0; color: #64748b; font-size: 13px;">Auditoria de Sinalização Urbana & Controle de Ativos de Via</p>
+              </div>
+              <div class="no-print" style="display: flex; gap: 10px; align-items: center;">
+                <span class="period-badge">${filteredPeriod}</span>
+                <button onclick="window.print()" class="btn-print">🖨️ IMPRIMIR / SALVAR PDF</button>
+              </div>
+            </div>
+
+            <div style="background: #fffbeb; border: 1px solid #fef3c7; padding: 15px; border-radius: 8px; color: #b45309; font-size: 12px; margin-bottom: 25px; font-weight: 500;">
+              ⚠️ <b>Nota de Auditoria:</b> Este documento consolida todas as ocorrências onde os agentes de rua registraram a impossibilidade de localizar cones, balizadores ou cavaletes deixados anteriormente em campo. Lotes com status "Pendente" aguardam baixa administrativa formal pelo supervisor no painel.
+            </div>
+
+            <h2>Listagem de Ocorrências (${lots.length})</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th style="width: 12%">Viatura</th>
+                  <th style="width: 25%">Material</th>
+                  <th style="width: 15%">Qtd. Perdida</th>
+                  <th style="width: 25%">Local de Lançamento</th>
+                  <th style="width: 13%">Data</th>
+                  <th style="width: 10%; text-align: center;">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rowsHTML}
+              </tbody>
+            </table>
+
+            <div style="margin-top: 60px; border-top: 1px solid #e2e8f0; padding-top: 20px; font-size: 11px; color: #94a3b8; text-align: center;">
+              Documento gerado oficialmente em ${new Date().toLocaleString('pt-BR')} para auditoria interna da Secretaria Municipal de Trânsito.
+            </div>
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+    }
+
+    const { useState, useEffect, useRef } = React;
+
+    // React Error Boundary para capturar erros em componentes filhos
+    class ErrorBoundary extends React.Component {
+      constructor(props) {
+        super(props);
+        this.state = { hasError: false, error: null };
+      }
+      componentDidCatch(error, errorInfo) {
+        this.setState({ hasError: true, error: error });
+        console.error("React Error Boundary caught:", error, errorInfo);
+      }
+      render() {
+        if (this.state.hasError) {
+          return (
+            <div className="flex items-center justify-center p-8 w-full flex-grow">
+              <div className="text-center space-y-4 max-w-sm glass-card p-6 rounded-3xl border border-rose-500/20 shadow-2xl">
+                <div className="inline-flex p-3 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-2xl mb-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-8.5 h-8.5 text-rose-400 mx-auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                </div>
+                <h2 className="text-xl font-bold font-outfit text-rose-300">Erro na Interface</h2>
+                <p className="text-sm text-slate-400 leading-relaxed">
+                  Ocorreu uma falha ao renderizar o painel. Detalhes técnicos:
+                </p>
+                <div className="text-left bg-rose-950/40 border border-rose-500/30 rounded-xl p-3.5 mt-3 text-xs font-mono text-rose-300 overflow-x-auto">
+                  <div className="font-bold text-sm">❌ {this.state.error && this.state.error.message}</div>
+                </div>
+                <button onClick={() => window.location.reload()} className="w-full py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-sm font-semibold transition-all mt-4 shadow-lg border border-slate-700/50">
+                  Recarregar Página
+                </button>
+              </div>
+            </div>
+          );
+        }
+        return this.props.children;
+      }
+    }
+
+    function App() {
+      const [user, setUser] = useState(null);
+      const [loadingUser, setLoadingUser] = useState(true);
+
+      useEffect(() => {
+        // Verifica se já existe sessão ativa do supervisor
+        const cachedUser = sessionStorage.getItem('supervisor_session');
+        if (cachedUser) {
+          setUser(JSON.parse(cachedUser));
+        }
+        setLoadingUser(false);
+      }, []);
+
+      if (loadingUser) {
+        return (
+          <div class="flex items-center justify-center min-h-screen bg-[#050811]">
+            <div class="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        );
+      }
+
+      if (!user) {
+        return (
+          <ScreenLogin 
+            onLoginSuccess={(userData) => {
+              sessionStorage.setItem('supervisor_session', JSON.stringify(userData));
+              setUser(userData);
+            }} 
+          />
+        );
+      }
+
+      return (
+        <ErrorBoundary>
+          <DashboardConsole 
+            user={user} 
+            onLogout={() => {
+              sessionStorage.removeItem('supervisor_session');
+              setUser(null);
+            }} 
+          />
+        </ErrorBoundary>
+      );
+    }
+
+    // ==========================================
+    // TELA 1: LOGIN WALL SECURE
+    // ==========================================
+    function ScreenLogin({ onLoginSuccess }) {
+      const [usuario, setUsuario] = useState('');
+      const [senha, setSenha] = useState('');
+      const [loading, setLoading] = useState(false);
+      const [erro, setErro] = useState('');
+
+      const handleLogin = async (e) => {
+        e.preventDefault();
+        setErro('');
+        
+        if (!usuario.trim() || !senha.trim()) {
+          setErro('Por favor, informe o usuário e a senha.');
+          return;
+        }
+
+        setLoading(true);
+        try {
+          const supervisor = await loginSupervisor(usuario.trim(), senha);
+          onLoginSuccess(supervisor);
+        } catch (err) {
+          setErro(err.message || 'Falha ao autenticar.');
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      useEffect(() => {
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+      }, [erro]);
+
+      return (
+        <div class="min-h-screen flex items-center justify-center p-4">
+          <div class="w-full max-w-md glass-card rounded-3xl p-8 space-y-6 shadow-2xl relative overflow-hidden">
+            
+            <div class="text-center relative z-10">
+              <div class="inline-flex p-3 bg-indigo-600/10 border border-indigo-500/20 text-indigo-400 rounded-2xl mb-3">
+                <span><i data-lucide="shield-check" class="w-8 h-8"></i></span>
+              </div>
+              <h1 class="text-3xl font-extrabold font-outfit text-white tracking-tight">Painel Operacional</h1>
+              <p class="text-slate-400 text-sm mt-1">Acesso Restrito ao Controlador</p>
+            </div>
+
+            {isDemoMode && (
+              <div class="bg-indigo-500/10 border border-indigo-500/20 p-3 rounded-xl text-center text-xs text-indigo-300">
+                💡 <b>Dica de Acesso Local:</b><br />
+                Usuário: <code class="text-white bg-slate-800 px-1 rounded">controlador</code> | Senha: <code class="text-white bg-slate-800 px-1 rounded">frota123</code>
+              </div>
+            )}
+
+            <form onSubmit={handleLogin} class="space-y-4 relative z-10">
+              <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Usuário / E-mail</label>
+                <input
+                  type="text"
+                  placeholder="Ex: controlador"
+                  value={usuario}
+                  onChange={(e) => setUsuario(e.target.value)}
+                  class="glass-input w-full px-4 py-3.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600/20"
+                />
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Senha</label>
+                <input
+                  type="password"
+                  placeholder="••••••••"
+                  value={senha}
+                  onChange={(e) => setSenha(e.target.value)}
+                  class="glass-input w-full px-4 py-3.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600/20"
+                />
+              </div>
+
+              {erro && (
+                <div class="p-4.5 bg-rose-500/10 border border-rose-500/25 text-rose-300 text-xs rounded-xl flex items-start gap-2">
+                  <span><i data-lucide="alert-circle" class="w-4 h-4 shrink-0 mt-0.5"></i></span>
+                  <span>{erro}</span>
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={loading}
+                class="btn-tactile w-full py-4 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white rounded-xl text-sm font-bold tracking-wider transition-all flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/25 disabled:opacity-50"
+              >
+                {loading ? (
+                  <div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                ) : (
+                  <>
+                    <span>ENTRAR NO SISTEMA</span>
+                    <span><i data-lucide="arrow-right" class="w-4 h-4"></i></span>
+                  </>
+                )}
+              </button>
+            </form>
+          </div>
+        </div>
+      );
+    }
+
+    // ==========================================
+    // TELA 2: DASHBOARD PRINCIPAL
+    // ==========================================
+    function DashboardConsole({ user, onLogout }) {
+      const [tab, setTab] = useState('frota'); // 'frota' | 'checklists' | 'estoque' | 'cadastros' | 'seguranca'
+      const [viaturas, setViaturas] = useState([]);
+      const [materiais, setMateriais] = useState([]);
+      const [agentes, setAgentes] = useState([]);
+      const [checklists, setChecklists] = useState([]);
+      const [selectedPrefixo, setSelectedPrefixo] = useState('');
+      
+      const [modalManutencao, setModalManutencao] = useState(false);
+      const [filtroDataInicio, setFiltroDataInicio] = useState('');
+      const [filtroDataFim, setFiltroDataFim] = useState('');
+      
+      // Inputs de manutenção
+      const [odoManutencao, setOdoManutencao] = useState('');
+      const [intervaloManutencao, setIntervaloManutencao] = useState('5000');
+
+      // Inputs para gerenciar materiais
+      const [novoMaterialNome, setNovoMaterialNome] = useState('');
+      const [novoMaterialQtd, setNovoMaterialQtd] = useState('');
+
+      // Estados do sistema de segurança por dispositivos
+      const [dispositivos, setDispositivos] = useState([]);
+      const [codigosAtivos, setCodigosAtivos] = useState([]);
+      const [codigoGerado, setCodigoGerado] = useState('');
+      const [tempoRestanteCodigo, setTempoRestanteCodigo] = useState(0);
+      const [expandedPhoto, setExpandedPhoto] = useState(null);
+      const [filtroViaturaAuditoria, setFiltroViaturaAuditoria] = useState('');
+
+      // Estados do sistema de backup e restauração
+      const [fazendoBackup, setFazendoBackup] = useState(false);
+      const [restaurandoBackup, setRestaurandoBackup] = useState(false);
+
+      useEffect(() => {
+        if (!window.FirebaseApp) return;
+
+        // Carrega dados iniciais e escuta em tempo real
+        const unsubVtr = listenTodasViaturas((data) => {
+          setViaturas(data);
+        });
+
+        const unsubMat = listenMateriais((data) => {
+          setMateriais(data);
+        });
+
+        const unsubChecklist = listenTodosChecklists((data) => {
+          setChecklists(data);
+        });
+
+        const unsubAgentes = getAgentes((data) => {
+          setAgentes(data);
+        });
+
+        const unsubDev = listenDispositivos((data) => {
+          setDispositivos(data);
+        });
+
+        const unsubCod = listenCodigosAtivacaoAtivos((data) => {
+          setCodigosAtivos(data);
+          if (data.length > 0) {
+            const maisRecente = data[0];
+            const restante = Math.max(0, Math.ceil((maisRecente.expira_em - Date.now()) / 1000));
+            setCodigoGerado(maisRecente.codigo);
+            setTempoRestanteCodigo(restante);
+          } else {
+            setCodigoGerado('');
+            setTempoRestanteCodigo(0);
+          }
+        });
+
+        return () => {
+          unsubVtr();
+          unsubMat();
+          unsubChecklist();
+          if (unsubAgentes) unsubAgentes();
+          unsubDev();
+          unsubCod();
+        };
+      }, []);
+
+      // Efeito de regressão do cronômetro do código de ativação
+      useEffect(() => {
+        if (tempoRestanteCodigo <= 0) return;
+        const interval = setInterval(() => {
+          setTempoRestanteCodigo(prev => {
+            if (prev <= 1) {
+              clearInterval(interval);
+              setCodigoGerado('');
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+        return () => clearInterval(interval);
+      }, [tempoRestanteCodigo]);
+
+      useEffect(() => {
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+      }, [tab, viaturas, checklists, selectedPrefixo, modalManutencao, materiais, dispositivos, codigosAtivos, codigoGerado, expandedPhoto, filtroViaturaAuditoria]);
+
+      // Métricas
+      const totalViaturas = viaturas.length;
+      const emOperacao = viaturas.filter(v => v.status_atual === 'em_operacao').length;
+      const disponiveis = viaturas.filter(v => v.status_atual === 'disponivel').length;
+      const emBaixa = viaturas.filter(v => v.status_atual === 'baixada').length;
+
+      // Calcular trocas pendentes
+      const trocasPendentes = viaturas.filter(v => {
+        if (!v.regras_manutencao) return false;
+        const meta = v.regras_manutencao.troca_oleo_odometro_meta || 0;
+        return v.odometro_atual >= meta - 500;
+      }).length;
+
+      const selectedVtr = viaturas.find(v => v.prefixo === selectedPrefixo);
+
+      const checklistsFiltrados = filtroViaturaAuditoria
+        ? checklists.filter(c => c.viatura_id === filtroViaturaAuditoria)
+        : checklists;
+
+      // Obter lotes de rua ativos reativamente
+      const activeLots = checklistsFiltrados.flatMap(c => {
+        return (c.movimentacoes || [])
+          .filter(m => m.tipo === 'deixei_via' && m.quantidade_restante > 0)
+          .map(m => ({
+            ...m,
+            viatura_id: c.viatura_id,
+            checklist_id: c.id,
+            agente_nome: c.abertura?.equipe?.[0]?.nome || 'Desconhecido'
+          }));
+      });
+
+      // Lotes que foram marcados como não encontrados em algum momento
+      const rawLostLots = checklistsFiltrados.flatMap(c => {
+        return (c.movimentacoes || [])
+          .filter(m => m.tipo === 'deixei_via' && m.nao_encontrado)
+          .map(m => ({
+            ...m,
+            viatura_id: c.viatura_id,
+            checklist_id: c.id,
+            agente_nome: c.abertura?.equipe?.[0]?.nome || 'Desconhecido'
+          }));
+      });
+
+      // Ordenar do mais recente para o mais antigo e aplicar filtros de data
+      const lostLots = rawLostLots
+        .sort((a, b) => new Date(b.data) - new Date(a.data))
+        .filter(lot => {
+          if (filtroDataInicio) {
+            const dateLot = new Date(lot.data);
+            const dateStart = new Date(filtroDataInicio + 'T00:00:00');
+            if (dateLot < dateStart) return false;
+          }
+          if (filtroDataFim) {
+            const dateLot = new Date(lot.data);
+            const dateEnd = new Date(filtroDataFim + 'T23:59:59');
+            if (dateLot > dateEnd) return false;
+          }
+          return true;
+        });
+
+      // Metas de troca de óleo
+      const getOleoStatus = (vtr) => {
+        if (!vtr.regras_manutencao) return { status: 'ok', texto: 'N/A', cor: 'text-emerald-400', progress: 100, badgeColor: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' };
+        const meta = vtr.regras_manutencao.troca_oleo_odometro_meta || 0;
+        const ultima = vtr.regras_manutencao.ultima_troca_oleo_odometro || 0;
+        const odo = vtr.odometro_atual || 0;
+        
+        const vidaUtilTotal = Math.max(1, meta - ultima);
+        const restante = Math.max(0, meta - odo);
+        const progress = Math.min(100, Math.max(0, (restante / vidaUtilTotal) * 100));
+
+        if (odo >= meta) {
+          return { status: 'critico', texto: 'Vencida!', cor: 'text-rose-400', progress, badgeColor: 'bg-rose-500/15 border-rose-500/20 text-rose-400 animate-pulse' };
+        } else if (restante <= 500) {
+          return { status: 'aviso', texto: `Revisar (${restante} km)`, cor: 'text-amber-400', progress, badgeColor: 'bg-amber-500/15 border-amber-500/20 text-amber-400' };
+        }
+        return { status: 'ok', texto: `OK (${restante} km)`, cor: 'text-emerald-400', progress, badgeColor: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' };
+      };
+
+      const handleRegistrarOleo = async (e) => {
+        e.preventDefault();
+        if (!odoManutencao || isNaN(odoManutencao)) {
+          alert('Por favor, insira uma quilometragem numérica.');
+          return;
+        }
+        const odo = parseInt(odoManutencao);
+        const inter = parseInt(intervaloManutencao);
+        const novaMeta = odo + inter;
+
+        try {
+          await registrarTrocaOleo(selectedPrefixo, odo, novaMeta);
+          setModalManutencao(false);
+          setOdoManutencao('');
+          alert(`Óleo registrado com sucesso! Próxima troca agendada para ${novaMeta} km.`);
+        } catch (err) {
+          alert('Erro ao salvar no banco.');
+        }
+      };
+
+      const handleAdicionarMaterial = async () => {
+        if (!novoMaterialNome.trim()) {
+          alert('Por favor, informe o nome do material.');
+          return;
+        }
+        const qtd = parseInt(novoMaterialQtd) || 0;
+        if (qtd < 0) {
+          alert('A quantidade não pode ser negativa.');
+          return;
+        }
+
+        try {
+          await adicionarMaterialCustom(novoMaterialNome.trim(), qtd);
+          setNovoMaterialNome('');
+          setNovoMaterialQtd('');
+          alert(`Material "${novoMaterialNome.trim()}" adicionado com sucesso!`);
+        } catch (err) {
+          alert('Erro ao adicionar o material: ' + err.message);
+        }
+      };
+
+      const handleGerarCodigo = async () => {
+        try {
+          const code = await gerarCodigoAtivacao();
+          setCodigoGerado(code);
+          setTempoRestanteCodigo(600);
+        } catch (err) {
+          alert("Erro ao gerar código: " + err.message);
+        }
+      };
+
+      const handleBloquearDispositivo = async (uuid) => {
+        if (confirm("Deseja realmente revogar o acesso deste dispositivo? Ele será impedido de usar o aplicativo móvel imediatamente.")) {
+          try {
+            await revogarDispositivo(uuid);
+          } catch (err) {
+             alert("Erro ao revogar acesso: " + err.message);
+          }
+        }
+      };
+
+      const handleAutorizarDispositivo = async (uuid, nome) => {
+        try {
+          await autorizarDispositivo(uuid, nome);
+        } catch (err) {
+          alert("Erro ao autorizar dispositivo: " + err.message);
+        }
+      };
+
+      const handleExcluirDispositivo = async (uuid) => {
+        if (confirm("Deseja realmente excluir permanentemente este dispositivo? Ele será removido completamente do banco de dados.")) {
+          try {
+            await deletarDispositivo(uuid);
+          } catch (err) {
+            alert("Erro ao excluir dispositivo: " + err.message);
+          }
+        }
+      };
+
+      const handleExcluirAgente = async (matricula) => {
+        if (confirm("Deseja realmente excluir permanentemente este agente?")) {
+          try {
+            await deletarAgente(matricula);
+          } catch (err) {
+            alert("Erro ao excluir agente: " + err.message);
+          }
+        }
+      };
+
+      const handleExcluirViatura = async (prefixo) => {
+        if (confirm(`Deseja realmente excluir permanentemente a viatura ${prefixo}? Todos os registros de status vinculados a ela serão deletados.`)) {
+          try {
+            await deletarViatura(prefixo);
+          } catch (err) {
+            alert("Erro ao excluir viatura: " + err.message);
+          }
+        }
+      };
+
+      const handleDownloadBackup = async () => {
+        setFazendoBackup(true);
+        try {
+          const backupData = await backupBancoDeDados();
+          const jsonString = `data:text/json;charset=utf-8,${encodeURIComponent(
+            JSON.stringify(backupData, null, 2)
+          )}`;
+          const downloadAnchor = document.createElement('a');
+          const dataAtual = new Date().toISOString().split('T')[0];
+          downloadAnchor.setAttribute('href', jsonString);
+          downloadAnchor.setAttribute('download', `backup_frota_demutran_${dataAtual}.json`);
+          document.body.appendChild(downloadAnchor);
+          downloadAnchor.click();
+          downloadAnchor.remove();
+        } catch (err) {
+          console.error("Erro ao gerar download de backup:", err);
+          alert("Não foi possível gerar a cópia de segurança: " + err.message);
+        } finally {
+          setFazendoBackup(false);
+        }
+      };
+
+      const handleUploadBackup = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+          try {
+            const backupObj = JSON.parse(event.target.result);
+            if (!backupObj || !backupObj.dados) {
+              alert("Erro: Arquivo de backup com formato inválido ou corrompido.");
+              return;
+            }
+
+            const confirmacao = confirm(
+              "⚠️ AVISO CRÍTICO DE RESTAURAÇÃO!\n\n" +
+              "Você está prestes a substituir todos os dados atuais do banco de dados por esta cópia de segurança.\n" +
+              "Esta ação é irreversível e apagará quaisquer modificações feitas após a data de criação deste backup.\n\n" +
+              "Deseja prosseguir com a restauração por completo?"
+            );
+
+            if (!confirmacao) {
+              e.target.value = ''; // Limpa o input
+              return;
+            }
+
+            setRestaurandoBackup(true);
+            await restaurarBancoDeDados(backupObj);
+            alert("✅ Restauração do banco de dados concluída com sucesso! A página será recarregada.");
+            window.location.reload();
+          } catch (err) {
+            console.error("Erro na restauração de dados:", err);
+            alert("Não foi possível restaurar os dados: " + err.message);
+            setRestaurandoBackup(false);
+          }
+        };
+        reader.readAsText(file);
+      };
+
+      return (
+        <div class="flex-grow flex flex-col min-h-screen">
+          
+          {/* HEADER SUPERVISOR */}
+          <header class="glass-card border-b border-indigo-950/20 px-6 py-4 flex items-center justify-between sticky top-0 z-40">
+            <div class="flex items-center gap-3">
+              <div class="p-2.5 bg-indigo-600/10 border border-indigo-500/20 text-indigo-400 rounded-xl">
+                <span><i data-lucide="shield-check" class="w-6 h-6"></i></span>
+              </div>
+              <div>
+                <h1 class="text-xl font-bold font-outfit text-white tracking-wide">Painel do Controlador</h1>
+                <p class="text-slate-400 text-xs mt-0.5 flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                  Operador: {user.email} (Supervisor)
+                </p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-4">
+              <div class="flex bg-slate-900/60 p-1 border border-slate-800 rounded-xl">
+                <button
+                  onClick={() => setTab('frota')}
+                  class={`px-4 py-2 text-xs font-bold rounded-lg transition-all ${
+                    tab === 'frota' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  FROTA
+                </button>
+                <button
+                  onClick={() => setTab('checklists')}
+                  class={`px-4 py-2 text-xs font-bold rounded-lg transition-all ${
+                    tab === 'checklists' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  AUDITORIA LOGS
+                </button>
+                <button
+                  onClick={() => setTab('estoque')}
+                  class={`px-4 py-2 text-xs font-bold rounded-lg transition-all ${
+                    tab === 'estoque' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  ESTOQUE PÁTIO
+                </button>
+                <button
+                  onClick={() => setTab('carga_via')}
+                  class={`px-4 py-2 text-xs font-bold rounded-lg transition-all ${
+                    tab === 'carga_via' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  CARGA NA VIA
+                </button>
+                <button
+                  onClick={() => setTab('cadastros')}
+                  class={`px-4 py-2 text-xs font-bold rounded-lg transition-all ${
+                    tab === 'cadastros' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  CADASTROS
+                </button>
+                <button
+                  onClick={() => setTab('seguranca')}
+                  class={`px-4 py-2 text-xs font-bold rounded-lg transition-all ${
+                    tab === 'seguranca' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  DISPOSITIVOS
+                </button>
+              </div>
+
+              <button
+                onClick={onLogout}
+                class="btn-tactile px-4 py-2 bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 border border-rose-500/20 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all"
+              >
+                <span><i data-lucide="power" class="w-4 h-4"></i></span>
+                <span>SAIR</span>
+              </button>
+            </div>
+          </header>
+
+          <main class="flex-grow p-6 space-y-6">
+            
+            {/* CARDS RESUMO DO TOPO */}
+            <div class="grid grid-cols-5 gap-4">
+              <div class="glass-card rounded-2xl p-4.5 border border-slate-800/80 flex items-center gap-3">
+                <div class="p-3 bg-slate-800 text-slate-400 rounded-xl">
+                  <span><i data-lucide="car" class="w-6 h-6"></i></span>
+                </div>
+                <div>
+                  <span class="text-3xs font-bold text-slate-500 uppercase tracking-widest block">Frota Total</span>
+                  <span class="text-2xl font-black font-outfit text-white">{totalViaturas}</span>
+                </div>
+              </div>
+              <div class="glass-card rounded-2xl p-4.5 border border-emerald-500/10 bg-emerald-500/2 flex items-center gap-3">
+                <div class="p-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-xl">
+                  <span><i data-lucide="shield" class="w-6 h-6"></i></span>
+                </div>
+                <div>
+                  <span class="text-3xs font-bold text-emerald-500/70 uppercase tracking-widest block">Em Operação</span>
+                  <span class="text-2xl font-black font-outfit text-emerald-400">{emOperacao}</span>
+                </div>
+              </div>
+              <div class="glass-card rounded-2xl p-4.5 border border-indigo-500/10 bg-indigo-500/2 flex items-center gap-3">
+                <div class="p-3 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 rounded-xl">
+                  <span><i data-lucide="check-circle" class="w-6 h-6"></i></span>
+                </div>
+                <div>
+                  <span class="text-3xs font-bold text-indigo-500/70 uppercase tracking-widest block">Disponíveis</span>
+                  <span class="text-2xl font-black font-outfit text-indigo-400">{disponiveis}</span>
+                </div>
+              </div>
+              <div class="glass-card rounded-2xl p-4.5 border border-rose-500/10 bg-rose-500/2 flex items-center gap-3">
+                <div class="p-3 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-xl">
+                  <span><i data-lucide="tool" class="w-6 h-6"></i></span>
+                </div>
+                <div>
+                  <span class="text-3xs font-bold text-rose-500/70 uppercase tracking-widest block">Baixadas (Fora de Serviço)</span>
+                  <span class="text-2xl font-black font-outfit text-rose-400">{emBaixa}</span>
+                </div>
+              </div>
+              <div class="glass-card rounded-2xl p-4.5 border border-amber-500/15 bg-amber-500/5 flex items-center gap-3">
+                <div class={`p-3 rounded-xl border ${trocasPendentes > 0 ? 'bg-amber-500/15 border-amber-500/20 text-amber-400 animate-pulse' : 'bg-slate-800 border-slate-700 text-slate-400'}`}>
+                  <span><i data-lucide="alert-triangle" class="w-6 h-6"></i></span>
+                </div>
+                <div>
+                  <span class="text-3xs font-bold text-amber-500/70 uppercase tracking-widest block">Revisão de Óleo</span>
+                  <span class="text-2xl font-black font-outfit text-amber-400">{trocasPendentes}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* CONTEÚDO DINÂMICO DE ACORDO COM A ABA */}
+            {tab === 'frota' && (
+              <div class="grid grid-cols-3 gap-6 items-start">
+                
+                {/* LISTAGEM DE VIATURAS */}
+                <div class="col-span-2 space-y-4">
+                  <div class="flex justify-between items-center">
+                    <h2 class="text-lg font-bold font-outfit text-white flex items-center gap-2">
+                      <span><i data-lucide="list" class="w-5 h-5 text-indigo-400"></i></span>
+                      Monitor de Viaturas Ativas
+                    </h2>
+                    <span class="text-xs text-slate-400">Clique em um veículo para detalhes e manutenções</span>
+                  </div>
+
+                  <div class="grid grid-cols-2 gap-4">
+                    {viaturas.map(v => {
+                      const oleo = getOleoStatus(v);
+                      const isSelected = selectedPrefixo === v.prefixo;
+                      
+                      return (
+                        <button
+                          key={v.prefixo}
+                          onClick={() => {
+                            setSelectedPrefixo(v.prefixo);
+                            setOdoManutencao(v.odometro_atual || '');
+                          }}
+                          class={`w-full text-left glass-card rounded-3xl p-5 border transition-all duration-200 flex flex-col justify-between min-h-[170px] ${
+                            isSelected 
+                              ? 'border-indigo-500 ring-2 ring-indigo-500/20 bg-indigo-950/25' 
+                              : 'border-slate-850 hover:border-slate-750 hover:bg-slate-900/40'
+                          }`}
+                        >
+                          <div class="w-full flex items-start justify-between">
+                            <div>
+                              <span class="inline-flex px-2 py-0.5 bg-slate-800 text-3xs font-extrabold tracking-wider rounded-md text-slate-300 uppercase">
+                                {v.tipo}
+                              </span>
+                              <h3 class="text-2xl font-extrabold font-outfit text-white mt-1">{v.prefixo}</h3>
+                            </div>
+                            
+                            <span class={`px-2.5 py-1 rounded-full border text-3xs font-extrabold uppercase tracking-wide flex items-center gap-1.5 ${
+                              v.status_atual === 'em_operacao' 
+                                ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' 
+                                : v.status_atual === 'baixada'
+                                  ? 'bg-rose-500/15 border-rose-500/20 text-rose-400 animate-pulse'
+                                  : 'bg-indigo-500/10 border-indigo-500/20 text-indigo-400'
+                            }`}>
+                              <span class={`w-1.5 h-1.5 rounded-full ${
+                                v.status_atual === 'em_operacao' ? 'bg-emerald-400' : v.status_atual === 'baixada' ? 'bg-rose-500' : 'bg-indigo-400'
+                              }`}></span>
+                              {v.status_atual === 'em_operacao' ? 'Operação' : v.status_atual === 'baixada' ? 'Baixada' : 'Disponível'}
+                            </span>
+                          </div>
+
+                          {/* Seção equipe */}
+                          <div class="mt-3 text-xs text-slate-400 space-y-1">
+                            {v.status_atual === 'em_operacao' && v.equipe_atual && v.equipe_atual.length > 0 ? (
+                              <div class="flex items-center gap-1 text-slate-200">
+                                <span><i data-lucide="user" class="w-3.5 h-3.5 text-indigo-400 shrink-0"></i></span>
+                                <span class="font-semibold truncate">{v.equipe_atual[0].nome}</span>
+                                <span class="text-slate-500 text-3xs">({v.equipe_atual[0].papel})</span>
+                              </div>
+                            ) : (
+                              <span class="italic text-slate-500 font-medium">Veículo Ocioso na Base</span>
+                            )}
+                          </div>
+
+                          {/* Barra de manutenção de óleo */}
+                          <div class="mt-4 border-t border-slate-800/80 pt-3 space-y-1.5 w-full">
+                            <div class="flex justify-between items-center text-3xs font-semibold">
+                              <span class="text-slate-500 uppercase tracking-wider">Óleo Motor</span>
+                              <span class={`px-1.5 py-0.5 rounded border text-4xs font-bold uppercase tracking-wide ${oleo.badgeColor}`}>
+                                {oleo.texto}
+                              </span>
+                            </div>
+                            <div class="w-full bg-slate-900 border border-slate-800 h-2 rounded-full overflow-hidden">
+                              <div 
+                                class={`h-full transition-all duration-300 ${
+                                  oleo.status === 'critico' ? 'bg-rose-500' : oleo.status === 'aviso' ? 'bg-amber-500' : 'bg-emerald-500'
+                                }`}
+                                style={{ width: `${oleo.progress}%` }}
+                              ></div>
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* DETALHAMENTO LATERAL DA VIATURA SELECIONADA */}
+                <div class="space-y-6">
+                  <h2 class="text-lg font-bold font-outfit text-white flex items-center gap-2">
+                    <span><i data-lucide="info" class="w-5 h-5 text-indigo-400"></i></span>
+                    Detalhes do Veículo
+                  </h2>
+
+                  {selectedVtr ? (
+                    <div class="glass-card rounded-3xl p-6 border border-slate-800/85 space-y-6">
+                      
+                      {/* Prefixo e Botões Rápidos */}
+                      <div class="flex items-center justify-between border-b border-slate-800/75 pb-4">
+                        <div>
+                          <h3 class="text-3xl font-black font-outfit text-white tracking-wide">{selectedVtr.prefixo}</h3>
+                          <span class="text-xs text-slate-400">KM Atual: <b>{selectedVtr.odometro_atual} km</b></span>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                          {selectedVtr.status_atual !== 'baixada' ? (
+                            <button
+                              onClick={async () => {
+                                const obs = prompt("Motivo para baixar esta viatura (observação):");
+                                if (obs !== null) {
+                                  try {
+                                    await atualizarViaturaStatus(selectedVtr.prefixo, 'baixada', obs.trim());
+                                  } catch (err) {
+                                    alert('Erro ao baixar viatura: ' + err.message);
+                                  }
+                                }
+                              }}
+                              class="btn-tactile px-3.5 py-2 bg-rose-600/10 border border-rose-500/20 hover:bg-rose-600/20 text-rose-400 rounded-xl text-2xs font-extrabold uppercase tracking-wide transition-all"
+                            >
+                              Baixar Viatura
+                            </button>
+                          ) : (
+                            <button
+                              onClick={async () => {
+                                const obs = prompt("Observação para retorno a serviço desta viatura:");
+                                if (obs !== null) {
+                                  try {
+                                    await atualizarViaturaStatus(selectedVtr.prefixo, 'disponivel', obs.trim());
+                                  } catch (err) {
+                                    alert('Erro ao voltar a serviço: ' + err.message);
+                                  }
+                                }
+                              }}
+                              class="btn-tactile px-3.5 py-2 bg-emerald-600/10 border border-emerald-500/20 hover:bg-emerald-600/20 text-emerald-400 rounded-xl text-2xs font-extrabold uppercase tracking-wide transition-all"
+                            >
+                              Voltar a Serviço
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* BOX DE MANUTENÇÃO PREVENTIVA (ÓLEO) */}
+                      <div class="bg-indigo-950/20 border border-indigo-500/15 p-4.5 rounded-2xl space-y-4">
+                        <div class="flex justify-between items-center">
+                          <h4 class="text-xs font-bold uppercase tracking-wider text-indigo-300 flex items-center gap-1.5">
+                            <span><i data-lucide="tool" class="w-4 h-4 text-indigo-400"></i></span>
+                            Controle Preventivo de Óleo
+                          </h4>
+                          <button
+                            onClick={() => {
+                              setOdoManutencao(selectedVtr.odometro_atual);
+                              setModalManutencao(true);
+                            }}
+                            class="px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-3xs font-extrabold uppercase tracking-wider transition-all"
+                          >
+                            Registrar Troca
+                          </button>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4 text-xs">
+                          <div>
+                            <span class="text-4xs text-slate-500 uppercase tracking-widest block">Última Troca</span>
+                            <span class="text-sm font-extrabold text-slate-200">
+                              {selectedVtr.regras_manutencao?.ultima_troca_oleo_odometro || 0} km
+                            </span>
+                          </div>
+                          <div>
+                            <span class="text-4xs text-slate-500 uppercase tracking-widest block">Próxima Meta</span>
+                            <span class="text-sm font-extrabold text-slate-200">
+                              {selectedVtr.regras_manutencao?.troca_oleo_odometro_meta || 0} km
+                            </span>
+                          </div>
+                        </div>
+
+                        <div class="w-full bg-slate-900 border border-slate-850 h-2.5 rounded-full overflow-hidden">
+                          <div 
+                            class={`h-full transition-all duration-300 ${
+                              getOleoStatus(selectedVtr).status === 'critico' ? 'bg-rose-500' : getOleoStatus(selectedVtr).status === 'aviso' ? 'bg-amber-500' : 'bg-emerald-500'
+                            }`}
+                            style={{ width: `${getOleoStatus(selectedVtr).progress}%` }}
+                          ></div>
+                        </div>
+                      </div>
+
+                      {/* Equipe Operando */}
+                      {selectedVtr.status_atual === 'em_operacao' && selectedVtr.equipe_atual && (
+                        <div class="space-y-2 border-b border-slate-800/60 pb-5">
+                          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">Equipe de Serviço</h4>
+                          <div class="flex flex-col gap-2">
+                            {selectedVtr.equipe_atual.map((p, idx) => (
+                              <div key={idx} class="flex items-center justify-between p-2.5 bg-slate-900/40 border border-slate-850 rounded-xl">
+                                <div>
+                                  <p class="text-xs font-bold text-slate-200">{p.nome}</p>
+                                  <p class="text-3xs text-slate-500 mt-0.5">Matrícula: {p.matricula}</p>
+                                </div>
+                                <span class="px-2 py-0.5 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-4xs font-bold rounded uppercase tracking-wider">
+                                  {p.papel}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Materiais Embarcados */}
+                      <div class="space-y-3">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">Carga Embarcada na Viatura</h4>
+                        
+                        <div class="grid grid-cols-2 gap-3">
+                          {materiais.map(mat => {
+                            const carga = selectedVtr.carga_atual?.[mat.id] || 0;
+                            return (
+                              <div key={mat.id} class="p-3 bg-navy-900/40 border border-slate-850 rounded-xl flex items-center justify-between">
+                                <div>
+                                  <p class="text-2xs font-semibold text-slate-300">{mat.nome}</p>
+                                  <p class="text-lg font-black font-outfit text-white mt-1">{carga}</p>
+                                </div>
+                                <span class="text-3xs text-slate-500 uppercase tracking-widest font-semibold">unid</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Vistoria Inicial */}
+                      <div class="space-y-3 pt-2">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
+                          <span><i data-lucide="aperture" class="w-4 h-4 text-indigo-400"></i></span>
+                          Vistoria de Entrada (Fotos)
+                        </h4>
+                        
+                        {(selectedVtr.fotos_entrada || []).length > 0 ? (
+                          <div class="grid grid-cols-3 gap-2">
+                            {selectedVtr.fotos_entrada.map((foto, idx) => (
+                              <div
+                                key={idx}
+                                onClick={() => setExpandedPhoto(foto)}
+                                class="relative aspect-video rounded-lg overflow-hidden border border-slate-800 hover:border-indigo-500 group transition-all cursor-pointer"
+                              >
+                                <img src={foto} alt="Vistoria" class="w-full h-full object-cover group-hover:scale-110 transition-all duration-300" />
+                                <span class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-4xs font-bold text-white transition-all uppercase">Zoom</span>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p class="text-3xs text-slate-500 italic">Nenhuma foto de vistoria inicial gravada para este veículo.</p>
+                        )}
+                      </div>
+
+                      {/* Avarias */}
+                      {(selectedVtr.avarias_ativas || []).length > 0 && (
+                        <div class="space-y-3 pt-2">
+                          <h4 class="text-xs font-bold uppercase tracking-wider text-rose-400 flex items-center gap-1">
+                            <span><i data-lucide="shield-alert" class="w-4 h-4"></i></span>
+                            Avarias Pré-existentes ({selectedVtr.avarias_ativas.length})
+                          </h4>
+                          <div class="space-y-2">
+                            {selectedVtr.avarias_ativas.map((av, idx) => (
+                              <div key={idx} class="p-2.5 bg-slate-900/50 rounded-xl border border-slate-850 flex gap-2 items-center justify-between">
+                                <div class="flex gap-2 items-start">
+                                  {av.fotoUrl && (
+                                    <img src={av.fotoUrl} alt="Avaria" class="w-12 h-12 object-cover rounded-lg border border-slate-700 shrink-0 cursor-pointer hover:scale-105 transition-all" onClick={() => setExpandedPhoto(av.fotoUrl)} />
+                                  )}
+                                  <div>
+                                    <p class="text-xs text-slate-200 font-bold leading-relaxed">{av.descricao}</p>
+                                    <p class="text-4xs text-slate-500 mt-1 font-mono">{new Date(av.data_registro).toLocaleDateString('pt-BR')}</p>
+                                  </div>
+                                </div>
+                                <button
+                                  onClick={async (e) => {
+                                    e.stopPropagation();
+                                    if (confirm("Marcar esta avaria como resolvida/consertada?")) {
+                                      try {
+                                        await resolverAvaria(selectedVtr.prefixo, idx);
+                                      } catch (err) {
+                                        alert(err.message || 'Erro ao resolver avaria.');
+                                      }
+                                    }
+                                  }}
+                                  class="px-2 py-1.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 rounded-lg text-4xs font-bold uppercase shrink-0 transition-all flex items-center gap-1"
+                                >
+                                  <span><i data-lucide="check" class="w-3 h-3"></i></span>
+                                  <span>Consertar</span>
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Histórico do Veículo */}
+                      <div class="space-y-3 pt-4 border-t border-slate-800/80">
+                        <div class="flex items-center justify-between">
+                          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                            <span><i data-lucide="history" class="w-4 h-4 text-indigo-400"></i></span>
+                            Histórico do Veículo
+                          </h4>
+                          <button
+                            onClick={() => gerarRelatorioPDF(selectedVtr)}
+                            class="px-2.5 py-1.5 bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-300 border border-indigo-500/30 rounded-lg text-4xs font-bold uppercase tracking-wider transition-all flex items-center gap-1"
+                          >
+                            <span><i data-lucide="file-text" class="w-3 h-3"></i></span>
+                            <span>Gerar PDF</span>
+                          </button>
+                        </div>
+
+                        {(selectedVtr.historico || []).length > 0 ? (
+                          <div class="space-y-2.5 max-h-[250px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent">
+                            {[...selectedVtr.historico].reverse().map((h, idx) => {
+                              let badgeColor = 'bg-slate-500/10 border-slate-500/20 text-slate-400';
+                              let badgeText = 'Evento';
+                              let icon = 'info';
+
+                              if (h.tipo === 'baixa') {
+                                badgeColor = 'bg-rose-500/10 border-rose-500/20 text-rose-400';
+                                badgeText = 'Viatura Baixada';
+                                icon = 'shield-x';
+                              } else if (h.tipo === 'retorno_servico') {
+                                badgeColor = 'bg-teal-500/10 border-teal-500/20 text-teal-400';
+                                badgeText = 'Volta a Serviço';
+                                icon = 'check-circle-2';
+                              } else if (h.tipo === 'avaria_registrada') {
+                                badgeColor = 'bg-amber-500/10 border-amber-500/20 text-amber-400';
+                                badgeText = 'Avaria Registrada';
+                                icon = 'alert-triangle';
+                              } else if (h.tipo === 'avaria_resolvida') {
+                                badgeColor = 'bg-blue-500/10 border-blue-500/20 text-blue-400';
+                                badgeText = 'Avaria Consertada';
+                                icon = 'wrench';
+                              } else if (h.tipo === 'plantao_encerrado') {
+                                badgeColor = 'bg-slate-500/10 border-slate-500/20 text-slate-300';
+                                badgeText = 'Plantão Encerrado';
+                                icon = 'archive';
+                              }
+
+                              return (
+                                <div key={idx} class="p-2.5 bg-slate-900/40 border border-slate-850 rounded-xl flex flex-col gap-1">
+                                  <div class="flex items-center justify-between">
+                                    <span class={`px-1.5 py-0.5 border rounded text-5xs font-bold uppercase tracking-wider ${badgeColor}`}>
+                                      {badgeText}
+                                    </span>
+                                    <span class="text-4xs text-slate-500 font-mono">
+                                      {new Date(h.data).toLocaleString('pt-BR')}
+                                    </span>
+                                  </div>
+                                  
+                                  {h.observacao && (
+                                    <p class="text-xs text-slate-300 leading-relaxed font-medium mt-0.5">
+                                      {h.observacao}
+                                    </p>
+                                  )}
+
+                                  {h.avaria_descricao && (
+                                    <div class="text-2xs text-slate-400 bg-slate-950/40 p-2 rounded-lg border border-slate-900/60 mt-1 space-y-1">
+                                      <p class="font-bold text-slate-300">Avaria: {h.avaria_descricao}</p>
+                                      {h.origem && (
+                                        <p class="text-4xs text-slate-500">Registrado em: {h.origem}</p>
+                                      )}
+                                      {h.avaria_foto && (
+                                        <div onClick={() => setExpandedPhoto(h.avaria_foto)} class="block mt-1 w-fit cursor-pointer">
+                                          <img src={h.avaria_foto} alt="Avaria Foto" class="w-12 h-12 object-cover rounded border border-slate-800 hover:border-slate-600 transition-all" />
+                                        </div>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        ) : (
+                          <p class="text-3xs text-slate-500 italic">Nenhum evento registrado no histórico operacional deste veículo.</p>
+                        )}
+                      </div>
+
+                    </div>
+                  ) : (
+                    <div class="glass-card rounded-3xl p-10 border border-slate-850 text-center text-slate-500 italic">
+                      Selecione uma viatura para ver os dados operacionais reativos.
+                    </div>
+                  )}
+                </div>
+
+              </div>
+            )}
+
+            {/* ABA: AUDITORIA DE LOGS / CHECKLISTS */}
+            {tab === 'checklists' && (
+              <div class="grid grid-cols-3 gap-6 items-start">
+                
+                {/* LISTAGEM DE HISTÓRICO DE LOGS */}
+                <div class="col-span-2 space-y-4">
+                  <div class="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between border-b border-slate-800/80 pb-3">
+                    <h2 class="text-lg font-bold font-outfit text-white flex items-center gap-2">
+                      <span><i data-lucide="history" class="w-5 h-5 text-indigo-400"></i></span>
+                      Histórico Geral de Abertura / Fechamento de Plantão
+                    </h2>
+                    
+                    {/* Filtro de Viatura */}
+                    <div class="flex items-center gap-2">
+                      <span class="text-3xs font-semibold text-slate-500 uppercase tracking-widest">Filtrar por Veículo:</span>
+                      <select
+                        value={filtroViaturaAuditoria}
+                        onChange={(e) => setFiltroViaturaAuditoria(e.target.value)}
+                        class="glass-input px-3 py-1.5 rounded-xl text-2xs font-bold focus:outline-none text-indigo-400 cursor-pointer"
+                      >
+                        <option value="">Todos os Veículos 🚗🏍️</option>
+                        {viaturas.map(v => (
+                          <option key={v.prefixo} value={v.prefixo}>{v.prefixo}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="space-y-3 max-h-[600px] overflow-y-auto pr-1">
+                    {checklistsFiltrados.map(c => (
+                      <div key={c.id} class="glass-card rounded-2xl p-5 border border-slate-850 flex flex-col justify-between gap-4">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                          <div>
+                            <span class="text-xs text-indigo-400 font-black font-outfit">{c.viatura_id}</span>
+                            <span class="text-3xs text-slate-500 ml-2">ID: {c.id}</span>
+                          </div>
+                          
+                          <span class={`px-2 py-0.5 rounded text-4xs font-black uppercase tracking-wider ${
+                            c.status === 'fechado' ? 'bg-slate-800 text-slate-400 border border-slate-700' : 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400'
+                          }`}>
+                            {c.status}
+                          </span>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4 text-xs">
+                          <div>
+                            <p class="text-4xs text-slate-500 uppercase tracking-widest font-semibold">Abertura</p>
+                            <p class="text-slate-200 mt-1">Motorista: <b>{c.abertura?.equipe?.[0]?.nome}</b></p>
+                            <p class="text-slate-400 text-3xs mt-1">Data: {new Date(c.abertura?.data).toLocaleString('pt-BR')}</p>
+                            <p class="text-slate-400 text-3xs mt-0.5">KM: {c.abertura?.odometro} | Combustível: {c.abertura?.combustivel}</p>
+                            
+                            {c.abertura?.novas_avarias && c.abertura.novas_avarias.length > 0 && (
+                              <div class="mt-2 border border-rose-500/20 bg-rose-500/5 p-2 rounded-xl text-3xs space-y-1 text-rose-300">
+                                <p class="font-bold flex items-center gap-1">
+                                  <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>
+                                  ⚠️ NOVA AVARIA (RETIRADA):
+                                </p>
+                                {c.abertura.novas_avarias.map((av, idx) => (
+                                  <div key={idx} class="flex gap-1.5 items-start mt-1">
+                                    {av.fotoUrl && (
+                                      <img src={av.fotoUrl} alt="Avaria" class="w-8 h-8 rounded border border-rose-500/20 object-cover shrink-0 animate-pulse cursor-pointer hover:scale-105 transition-all" onClick={() => setExpandedPhoto(av.fotoUrl)} />
+                                    )}
+                                    <p class="leading-normal">{av.descricao}</p>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+
+                            {c.abertura?.observacoes && (
+                              <p class="text-indigo-300 text-3xs mt-2 italic font-semibold">
+                                📝 Obs: "{c.abertura.observacoes}"
+                              </p>
+                            )}
+                          </div>
+
+                          {c.fechamento ? (
+                            <div>
+                              <p class="text-4xs text-slate-500 uppercase tracking-widest font-semibold text-rose-400">Fechamento</p>
+                              <p class="text-slate-200 mt-1">KM Final: <b>{c.fechamento?.odometro_final} km</b></p>
+                              <p class="text-slate-400 text-3xs mt-1">Data: {new Date(c.fechamento?.data).toLocaleString('pt-BR')}</p>
+                              
+                              {c.fechamento?.novas_avarias && c.fechamento.novas_avarias.length > 0 && (
+                                <div class="mt-2 border border-rose-500/20 bg-rose-500/5 p-2 rounded-xl text-3xs space-y-1 text-rose-300">
+                                  <p class="font-bold flex items-center gap-1">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>
+                                    ⚠️ NOVA AVARIA (ENTREGA):
+                                  </p>
+                                  {c.fechamento.novas_avarias.map((av, idx) => (
+                                    <div key={idx} class="flex gap-1.5 items-start mt-1">
+                                      {av.fotoUrl && (
+                                        <img src={av.fotoUrl} alt="Avaria" class="w-8 h-8 rounded border border-rose-500/20 object-cover shrink-0 animate-pulse cursor-pointer hover:scale-105 transition-all" onClick={() => setExpandedPhoto(av.fotoUrl)} />
+                                      )}
+                                      <p class="leading-normal">{av.descricao}</p>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+
+                              {c.fechamento.divergencia_justificativa && (
+                                <p class="text-amber-300 text-3xs font-semibold leading-relaxed mt-1 border border-amber-500/10 bg-amber-500/5 p-1.5 rounded-lg">
+                                  ⚠️ Justificativa: "{c.fechamento.divergencia_justificativa}"
+                                </p>
+                              )}
+                            </div>
+                          ) : (
+                            <div class="flex items-center text-emerald-500 text-xs italic font-medium">
+                              Plantão em andamento ativo na rua...
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Imagens de check-in / check-out */}
+                        <div class="flex gap-2 mt-2">
+                          {c.abertura?.fotos?.map((f, i) => (
+                            <img key={i} src={f} alt="Abertura" class="w-12 h-12 object-cover rounded border border-slate-800 cursor-pointer hover:scale-105 transition-all" title="Foto Check-in" onClick={() => setExpandedPhoto(f)} />
+                          ))}
+                          {c.fechamento?.fotos?.map((f, i) => (
+                            <img key={i} src={f} alt="Fechamento" class="w-12 h-12 object-cover rounded border border-slate-800 opacity-80 cursor-pointer hover:scale-105 transition-all" title="Foto Check-out" onClick={() => setExpandedPhoto(f)} />
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+
+                    {checklistsFiltrados.length === 0 && (
+                      <div class="glass-card rounded-2xl p-10 border border-slate-850 text-center text-slate-500 italic">
+                        Nenhum plantão registrado no histórico ainda.
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* LOGS DE LOGÍSTICA DE CARGA NA RUA */}
+                <div class="space-y-4">
+                  <h2 class="text-lg font-bold font-outfit text-white flex items-center gap-2">
+                    <span><i data-lucide="navigation" class="w-5 h-5 text-indigo-400"></i></span>
+                    Logística Central de Materiais
+                  </h2>
+
+                  <div class="glass-card rounded-3xl p-5 border border-slate-800/85 space-y-4 max-h-[600px] overflow-y-auto no-scrollbar">
+                    
+                    <div class="space-y-4">
+                      {checklistsFiltrados.flatMap(c => {
+                        const vtr = c.viatura_id;
+                        return (c.movimentacoes || []).map((m, idx) => ({
+                          vtr,
+                          ...m,
+                          uniqKey: `${c.id}_mov_${idx}`
+                        }));
+                      })
+                      .sort((a, b) => new Date(b.data) - new Date(a.data))
+                      .map(mov => {
+                        const materialName = materiais.find(m => m.id === mov.material_id)?.nome || mov.outro_material || mov.material_id;
+                        
+                        return (
+                          <div key={mov.uniqKey} class="p-3.5 bg-slate-900/50 border border-slate-850 rounded-xl space-y-2 text-xs">
+                            
+                            <div class="flex justify-between items-center">
+                              <span class="font-extrabold font-outfit text-white">{mov.vtr}</span>
+                              <span class={`px-2 py-0.5 rounded text-4xs font-black uppercase tracking-wider ${
+                                mov.tipo === 'deixei_via' 
+                                  ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20' 
+                                  : mov.tipo === 'recolhi_via'
+                                    ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20'
+                                    : mov.tipo === 'peguei_base'
+                                      ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                                      : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                              }`}>
+                                {mov.tipo === 'deixei_via' && 'Deixou na Via 📍'}
+                                {mov.tipo === 'recolhi_via' && 'Recolheu ♻️'}
+                                {mov.tipo === 'peguei_base' && 'Pegou Base 📦'}
+                                {mov.tipo === 'devolvi_base' && 'Devolveu Base ↩️'}
+                              </span>
+                            </div>
+
+                            <p class="text-slate-300 mt-1">
+                              Material: <b>{materialName}</b> (x{mov.quantidade} unid.)
+                            </p>
+
+                            {mov.tipo === 'recolhi_via' && (mov.nao_listado || !mov.referencia_mov_id) && (
+                              <div class="inline-flex items-center gap-1 px-1.5 py-0.5 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded text-5xs font-black uppercase tracking-wider animate-pulse mt-1">
+                                <span>⚠️ Recolha Não Listada / Avulsa</span>
+                              </div>
+                            )}
+
+                            {mov.observacao && (
+                              <p class="text-3xs text-indigo-300 mt-1 italic font-semibold">
+                                Obs: "{mov.observacao}"
+                              </p>
+                            )}
+
+                            {mov.foto_url && (
+                              <div onClick={() => setExpandedPhoto(mov.foto_url)} class="block mt-1.5 w-fit cursor-pointer">
+                                <img src={mov.foto_url} alt="Foto Via" class="w-14 h-10 object-cover rounded border border-slate-800 hover:border-indigo-500 transition-all" />
+                              </div>
+                            )}
+
+                            <p class="text-4xs text-slate-500 font-mono mt-1 flex items-center gap-1">
+                              <span><i data-lucide="clock" class="w-3 h-3"></i></span>
+                              {new Date(mov.data).toLocaleString('pt-BR')}
+                            </p>
+
+                            {mov.endereco && (
+                              <p class="text-3xs text-slate-400 border-t border-slate-850 pt-1.5 flex items-start gap-1 font-semibold">
+                                <span><i data-lucide="map-pin" class="w-3 h-3 shrink-0 text-indigo-400 mt-0.5 animate-bounce"></i></span>
+                                <span class="truncate">{mov.endereco}</span>
+                              </p>
+                            )}
+                          </div>
+                        );
+                      })}
+
+                      {checklists.every(c => !c.movimentacoes || c.movimentacoes.length === 0) && (
+                        <div class="text-center text-slate-500 italic py-6">
+                          Nenhuma logística de rua registrada nas últimas viaturas.
+                        </div>
+                      )}
+                    </div>
+
+                  </div>
+                </div>
+
+              </div>
+            )}
+
+            {/* ABA: ESTOQUE DO PÁTIO CENTRAL */}
+            {tab === 'estoque' && (
+              <div class="max-w-2xl mx-auto space-y-6">
+                <div class="flex justify-between items-center">
+                  <h2 class="text-lg font-bold font-outfit text-white flex items-center gap-2">
+                    <span><i data-lucide="archive" class="w-5 h-5 text-indigo-400"></i></span>
+                    Estoque de Pátio Central (Base Operacional)
+                  </h2>
+                  <span class="px-3 py-1 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-bold rounded-xl">
+                    {materiais.length} Itens Operacionais
+                  </span>
+                </div>
+
+                {/* FORMULÁRIO DE ADICIONAR NOVO MATERIAL */}
+                <div class="glass-card rounded-3xl p-5 border border-slate-850 space-y-3.5 shadow-xl">
+                  <h3 class="text-sm font-bold font-outfit text-white flex items-center gap-2">
+                    <span><i data-lucide="plus-circle" class="w-4 h-4 text-emerald-400"></i></span>
+                    Cadastrar Novo Material Operacional
+                  </h3>
+                  <div class="flex flex-col sm:flex-row gap-3">
+                    <div class="flex-1 relative">
+                      <input
+                        type="text"
+                        placeholder="Nome do Material (ex: Cone Grande Refletivo)"
+                        value={novoMaterialNome}
+                        onChange={(e) => setNovoMaterialNome(e.target.value)}
+                        class="w-full px-4 py-2.5 rounded-xl text-sm text-white bg-slate-950 border border-slate-850 focus:outline-none focus:border-indigo-500/50 transition-all font-semibold"
+                      />
+                    </div>
+                    <div class="w-full sm:w-32 relative">
+                      <input
+                        type="number"
+                        placeholder="Qtd. Pátio"
+                        value={novoMaterialQtd}
+                        onChange={(e) => setNovoMaterialQtd(e.target.value)}
+                        class="w-full px-4 py-2.5 rounded-xl text-sm text-white bg-slate-950 border border-slate-850 focus:outline-none focus:border-indigo-500/50 transition-all font-semibold"
+                        min="0"
+                      />
+                    </div>
+                    <button
+                      onClick={handleAdicionarMaterial}
+                      class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white rounded-xl text-sm font-extrabold transition-all btn-tactile flex items-center justify-center gap-1.5 shadow-md shadow-emerald-950/20"
+                    >
+                      <i data-lucide="plus" class="w-4 h-4"></i>
+                      <span>ADICIONAR</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="glass-card rounded-3xl p-6 border border-slate-850 space-y-4">
+                  <p class="text-xs text-slate-400 -mt-1">
+                    Ajuste diretamente a quantidade de materiais no Pátio Central. O app do Agente lerá estas quantidades instantaneamente antes de realizar check-ins ou novos carregamentos.
+                  </p>
+
+                  <div class="space-y-3">
+                    {materiais.map(mat => (
+                      <div key={mat.id} class="p-4 bg-navy-900/40 border border-slate-850 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                          <h4 class="text-sm font-extrabold text-slate-200">{mat.nome}</h4>
+                          <span class="text-3xs text-indigo-400 font-bold uppercase tracking-wider font-mono">ID: {mat.id}</span>
+                        </div>
+
+                        <div class="flex items-center gap-2 justify-end">
+                          <button
+                            onClick={() => atualizarPatioEstoque(mat.id, Math.max(0, mat.quantidade_patio - 5))}
+                            class="w-9 h-9 flex items-center justify-center bg-slate-800 hover:bg-slate-700 active:bg-slate-900 text-slate-300 rounded-xl text-xs font-bold transition-all btn-tactile"
+                            title="-5"
+                          >
+                            -5
+                          </button>
+                          <button
+                            onClick={() => atualizarPatioEstoque(mat.id, Math.max(0, mat.quantidade_patio - 1))}
+                            class="w-9 h-9 flex items-center justify-center bg-slate-800 hover:bg-slate-700 active:bg-slate-900 text-slate-300 rounded-xl text-sm font-bold transition-all btn-tactile"
+                            title="-1"
+                          >
+                            -
+                          </button>
+                          
+                          <input
+                            type="number"
+                            value={mat.quantidade_patio}
+                            onChange={(e) => {
+                              const val = parseInt(e.target.value);
+                              if (!isNaN(val) && val >= 0) {
+                                atualizarPatioEstoque(mat.id, val);
+                              }
+                            }}
+                            class="w-16 text-center py-1.5 rounded-xl text-base font-black font-outfit text-white bg-slate-950 border border-slate-850 focus:outline-none"
+                          />
+
+                          <button
+                            onClick={() => atualizarPatioEstoque(mat.id, mat.quantidade_patio + 1)}
+                            class="w-9 h-9 flex items-center justify-center bg-slate-800 hover:bg-slate-700 active:bg-slate-900 text-slate-300 rounded-xl text-sm font-bold transition-all btn-tactile"
+                            title="+1"
+                          >
+                            +
+                          </button>
+                          <button
+                            onClick={() => atualizarPatioEstoque(mat.id, mat.quantidade_patio + 5)}
+                            class="w-9 h-9 flex items-center justify-center bg-slate-800 hover:bg-slate-700 active:bg-slate-900 text-slate-300 rounded-xl text-xs font-bold transition-all btn-tactile"
+                            title="+5"
+                          >
+                            +5
+                          </button>
+
+                          <button
+                            onClick={() => {
+                              if (confirm(`Deseja realmente remover o material "${mat.nome}" de forma permanente? Esta ação não pode ser desfeita.`)) {
+                                deletarMaterial(mat.id).catch(err => alert("Erro ao deletar: " + err.message));
+                              }
+                            }}
+                            class="w-9 h-9 flex items-center justify-center bg-red-500/10 hover:bg-red-500/25 active:bg-red-500/40 border border-red-500/20 hover:border-red-500/40 text-red-400 rounded-xl transition-all btn-tactile ml-1"
+                            title="Remover Material"
+                          >
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ABA: INVENTÁRIO DE CARGA NA VIA */}
+            {tab === 'carga_via' && (
+              <div class="max-w-4xl mx-auto space-y-6">
+                <div class="flex justify-between items-center">
+                  <h2 class="text-lg font-bold font-outfit text-white flex items-center gap-2">
+                    <span><i data-lucide="map-pin" class="w-5 h-5 text-indigo-400"></i></span>
+                    Inventário de Carga na Via (Sinalização em Campo)
+                  </h2>
+                  <span class="px-3 py-1 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-bold rounded-xl">
+                    {activeLots.length} Lotes Ativos na Rua
+                  </span>
+                </div>
+
+                <div class="glass-card rounded-3xl p-6 border border-slate-850 space-y-4">
+                  <p class="text-xs text-slate-400 -mt-1">
+                    Esta aba exibe em tempo real todas as cargas (cones, balizadores, etc.) descartadas ou implantadas na via pública por todas as viaturas de plantão. Quando um agente recolhe um lote por referência no aplicativo, o saldo restante é atualizado aqui instantaneamente.
+                  </p>
+
+                  <div class="space-y-4">
+                    {activeLots.length > 0 ? (
+                      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {activeLots.map(lot => {
+                          const materialName = materiais.find(m => m.id === lot.material_id)?.nome || lot.outro_material || lot.material_id;
+                          const percentRestante = Math.min(100, Math.max(0, (lot.quantidade_restante / lot.quantidade) * 100));
+                          
+                          return (
+                            <div key={lot.id} class="p-5 bg-navy-900/40 border border-slate-850 rounded-2xl flex flex-col justify-between gap-4 transition-all hover:border-indigo-500/35 hover:bg-slate-900/50">
+                              <div class="flex items-start justify-between">
+                                <div>
+                                  <div class="flex items-center gap-1.5 flex-wrap">
+                                    <span class="inline-flex px-2 py-0.5 bg-slate-800 text-3xs font-extrabold tracking-wider rounded text-slate-300 uppercase">
+                                      Viatura: {lot.viatura_id}
+                                    </span>
+                                    {lot.nao_encontrado && (
+                                      <span class="inline-flex px-1.5 py-0.5 bg-amber-500/10 border border-amber-500/20 text-amber-400 text-3xs font-black uppercase rounded animate-pulse">
+                                        ⚠️ NÃO ENCONTRADO
+                                      </span>
+                                    )}
+                                  </div>
+                                  <h4 class="text-base font-extrabold text-white mt-1.5">{materialName}</h4>
+                                  <p class="text-3xs text-slate-500 mt-0.5">Lançado por: {lot.agente_nome}</p>
+                                </div>
+                                
+                                <div class="text-right">
+                                  <span class="text-2xl font-black font-outfit text-indigo-400">{lot.quantidade_restante}</span>
+                                  <span class="text-xs text-slate-500"> / {lot.quantidade} restando</span>
+                                </div>
+                              </div>
+
+                              {/* Barra de progresso do lote */}
+                              <div class="space-y-1.5">
+                                <div class="w-full bg-slate-950 border border-slate-900 h-2 rounded-full overflow-hidden">
+                                  <div 
+                                    class="h-full bg-indigo-500 rounded-full transition-all duration-300"
+                                    style={{ width: `${percentRestante}%` }}
+                                  ></div>
+                                </div>
+                                <div class="flex justify-between text-4xs font-bold text-slate-500">
+                                  <span>{lot.quantidade - lot.quantidade_restante} RECOLHIDOS</span>
+                                  <span>{Math.round(percentRestante)}% DO LOTE ORIGINAL</span>
+                                </div>
+                              </div>
+
+                              <div class="border-t border-slate-850 pt-3 space-y-2 text-xs">
+                                {lot.observacao && (
+                                  <div class="text-xs text-indigo-300 italic font-semibold">
+                                    Obs: "{lot.observacao}"
+                                  </div>
+                                )}
+
+                                {lot.foto_url && (
+                                  <div onClick={() => setExpandedPhoto(lot.foto_url)} class="block cursor-pointer w-fit">
+                                    <img src={lot.foto_url} alt="Foto Via" class="w-16 h-12 object-cover rounded border border-slate-850 hover:border-indigo-500 transition-all" />
+                                  </div>
+                                )}
+
+                                {lot.endereco && (
+                                  <div class="flex items-start gap-1 text-slate-300 font-medium">
+                                    <span><i data-lucide="map-pin" class="w-3.5 h-3.5 text-rose-400 shrink-0 mt-0.5"></i></span>
+                                    <span>{lot.endereco}</span>
+                                  </div>
+                                )}
+                                <div class="flex justify-between items-center text-4xs text-slate-500 font-mono">
+                                  <div class="flex items-center gap-1">
+                                    <span><i data-lucide="clock" class="w-3 h-3"></i></span>
+                                    {new Date(lot.data).toLocaleString('pt-BR')}
+                                  </div>
+                                  
+                                  <div class="flex items-center gap-2">
+                                    {lot.endereco && (
+                                      <a
+                                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(lot.endereco)}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        class="px-2 py-1 bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 border border-indigo-500/20 rounded-lg text-4xs font-black uppercase tracking-wider flex items-center gap-1 transition-all"
+                                      >
+                                        <span>MAPS</span>
+                                        <span><i data-lucide="external-link" class="w-3 h-3"></i></span>
+                                      </a>
+                                    )}
+
+                                    <button
+                                      onClick={async () => {
+                                        const obs = prompt("Justificativa para dar baixa administrativa deste lote:", lot.nao_encontrado ? "Material confirmado como perdido pela equipe" : "Baixa administrativa manual");
+                                        if (obs !== null) {
+                                          try {
+                                            await darBaixaLoteRua(lot.checklist_id, lot.id, obs.trim());
+                                            alert("Baixa administrativa concluída com sucesso!");
+                                          } catch (err) {
+                                            alert("Erro ao dar baixa: " + err.message);
+                                          }
+                                        }
+                                      }}
+                                      class="px-2 py-1 bg-rose-600/10 hover:bg-rose-600/20 text-rose-400 border border-rose-500/20 rounded-lg text-4xs font-black uppercase tracking-wider flex items-center gap-1 transition-all"
+                                    >
+                                      <span>BAIXAR</span>
+                                      <span><i data-lucide="trash-2" class="w-3 h-3"></i></span>
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <div class="glass-card rounded-2xl p-16 border border-slate-850 text-center space-y-3">
+                        <div class="inline-flex p-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-full">
+                          <span><i data-lucide="shield-check" class="w-8 h-8"></i></span>
+                        </div>
+                        <h3 class="text-lg font-bold text-white font-outfit">Via 100% Limpa</h3>
+                        <p class="text-xs text-slate-400 max-w-sm mx-auto">
+                          Nenhum cone ou balizador está pendente de recolhimento nas ruas no momento. Todas as sinalizações foram baixadas com sucesso!
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* RELATÓRIO DE PERDAS / ITENS NÃO LOCALIZADOS */}
+                <div class="mt-8 space-y-4">
+                  <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <h2 class="text-lg font-bold font-outfit text-white flex items-center gap-2">
+                      <span><i data-lucide="alert-triangle" class="w-5 h-5 text-amber-500"></i></span>
+                      Relatório de Materiais Não Encontrados em Campo
+                    </h2>
+                    <span class="px-3 py-1 bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-bold rounded-xl animate-pulse">
+                      {lostLots.length} Ocorrências
+                    </span>
+                  </div>
+
+                  <div class="glass-card rounded-3xl p-6 border border-slate-850 space-y-4">
+                    <p class="text-xs text-slate-400 -mt-1">
+                      Abaixo constam todos os lotes de sinalização que foram sinalizados pela equipe de rua como **Não Localizados/Perdidos** durante a recolha. O supervisor pode realizar a baixa administrativa diretamente nos cartões de lote ativos acima.
+                    </p>
+
+                    {/* Filtros de Data e Botão de Exportação */}
+                    <div class="flex flex-wrap items-center justify-between gap-4 p-4 bg-slate-900/60 border border-slate-800 rounded-2xl">
+                      <div class="flex flex-wrap items-center gap-3 text-xs">
+                        <div class="flex items-center gap-2">
+                          <label class="text-slate-400 font-semibold uppercase tracking-wider text-4xs">De:</label>
+                          <input
+                            type="date"
+                            value={filtroDataInicio}
+                            onChange={(e) => setFiltroDataInicio(e.target.value)}
+                            class="bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-2xs text-white focus:outline-none focus:border-indigo-500"
+                          />
+                        </div>
+                        <div class="flex items-center gap-2">
+                          <label class="text-slate-400 font-semibold uppercase tracking-wider text-4xs">Até:</label>
+                          <input
+                            type="date"
+                            value={filtroDataFim}
+                            onChange={(e) => setFiltroDataFim(e.target.value)}
+                            class="bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-2xs text-white focus:outline-none focus:border-indigo-500"
+                          />
+                        </div>
+                        {(filtroDataInicio || filtroDataFim) && (
+                          <button
+                            onClick={() => {
+                              setFiltroDataInicio('');
+                              setFiltroDataFim('');
+                            }}
+                            class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-4xs font-bold uppercase tracking-wider transition-all"
+                          >
+                            Limpar Filtros
+                          </button>
+                        )}
+                      </div>
+                      
+                      <button
+                        onClick={() => gerarRelatorioPerdasPDF(lostLots, filtroDataInicio, filtroDataFim)}
+                        class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-3xs font-extrabold uppercase tracking-wider flex items-center gap-1.5 transition-all shadow-md shadow-indigo-600/10"
+                      >
+                        <span><i data-lucide="file-text" class="w-3.5 h-3.5"></i></span>
+                        <span>Gerar Relatório (PDF)</span>
+                      </button>
+                    </div>
+
+                    {lostLots.length > 0 ? (
+                      <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-xs">
+                          <thead>
+                            <tr class="border-b border-slate-800 text-slate-400 font-bold uppercase tracking-wider text-3xs">
+                              <th class="py-3 px-4">Viatura</th>
+                              <th class="py-3 px-4">Material</th>
+                              <th class="py-3 px-4">Qtd. Perdida</th>
+                              <th class="py-3 px-4">Local de Lançamento</th>
+                              <th class="py-3 px-4">Data do Descarte</th>
+                              <th class="py-3 px-4 text-center">Status de Baixa</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {lostLots.map((lot, idx) => {
+                              const materialName = materiais.find(m => m.id === lot.material_id)?.nome || lot.outro_material || lot.material_id;
+                              const isBaixado = lot.quantidade_restante === 0;
+                              
+                              return (
+                                <tr key={idx} class="border-b border-slate-850 hover:bg-slate-900/20 transition-all">
+                                  <td class="py-3 px-4 font-mono font-bold text-white">{lot.viatura_id}</td>
+                                  <td class="py-3 px-4 font-semibold text-slate-300">{materialName}</td>
+                                  <td class="py-3 px-4 text-slate-300 font-extrabold">{lot.quantidade_perdida || lot.quantidade} un.</td>
+                                  <td class="py-3 px-4 text-slate-400">{lot.endereco || 'Sem endereço'}</td>
+                                  <td class="py-3 px-4 text-slate-500 font-mono">{new Date(lot.data).toLocaleDateString('pt-BR')}</td>
+                                  <td class="py-3 px-4 text-center">
+                                    {isBaixado ? (
+                                      <div class="inline-flex flex-col items-center">
+                                        <span class="px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-5xs font-black uppercase rounded">
+                                          Baixado
+                                        </span>
+                                        {lot.baixa_obs && (
+                                          <span class="text-4xs text-slate-500 mt-0.5 max-w-[120px] truncate italic" title={lot.baixa_obs}>
+                                            "{lot.baixa_obs}"
+                                          </span>
+                                        )}
+                                      </div>
+                                    ) : (
+                                      <span class="px-2 py-0.5 bg-rose-500/10 border border-rose-500/20 text-rose-400 text-5xs font-black uppercase rounded animate-pulse">
+                                        Pendente
+                                      </span>
+                                    )}
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    ) : (
+                      <p class="text-xs text-slate-500 italic text-center py-6">Nenhuma perda de sinalização registrada em campo pelas equipes de rua.</p>
+                    )}
+                  </div>
+                </div>
+
+              </div>
+            )}
+
+            {/* ABA: CADASTRO DE AGENTES E VEÍCULOS */}
+            {tab === 'cadastros' && (
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto items-start">
+                
+                {/* COLUNA 1 */}
+                <div class="space-y-6">
+                  {/* CADASTRO DE AGENTE */}
+                  <div class="glass-card rounded-3xl p-6 border border-slate-850 space-y-4">
+                    <h3 class="text-sm font-bold uppercase tracking-wider text-indigo-400 flex items-center gap-1.5 border-b border-slate-800 pb-3">
+                      <span><i data-lucide="user-plus" class="w-4 h-4"></i></span>
+                      Cadastrar Novo Agente de Trânsito
+                    </h3>
+                    
+                    <FormCadastrarAgente />
+                    
+                    <div class="mt-4 border-t border-slate-800/80 pt-4 space-y-2">
+                      <span class="text-3xs font-bold text-slate-500 uppercase tracking-widest block">Agentes Cadastrados ({agentes.length})</span>
+                      <div class="grid grid-cols-2 gap-2 max-h-[160px] overflow-y-auto pr-1">
+                        {agentes.map(ag => (
+                          <div key={ag.matricula} class="p-2.5 bg-slate-900/50 border border-slate-850 rounded-xl text-2xs flex justify-between items-center gap-2">
+                            <div>
+                              <p class="font-bold text-slate-200">{ag.nome}</p>
+                              <p class="text-slate-500 mt-0.5">Matrícula: {ag.matricula}</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                              <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+                              <button
+                                type="button"
+                                onClick={() => handleExcluirAgente(ag.matricula)}
+                                class="p-1 hover:bg-red-950/30 text-rose-450 hover:text-rose-400 rounded transition-all shrink-0"
+                                title="Excluir Agente"
+                              >
+                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* CADASTRO DE CONTROLADOR */}
+                  <div class="glass-card rounded-3xl p-6 border border-slate-850 space-y-4 shadow-xl">
+                    <h3 class="text-sm font-bold uppercase tracking-wider text-indigo-400 flex items-center gap-1.5 border-b border-slate-800 pb-3">
+                      <span><i data-lucide="shield-alert" class="w-4 h-4"></i></span>
+                      Cadastrar Novo Controlador / Supervisor
+                    </h3>
+                    
+                    <FormCadastrarSupervisor />
+                  </div>
+                </div>
+
+                {/* COLUNA 2 */}
+                <div class="space-y-6">
+                  {/* CADASTRO DE VEÍCULO */}
+                  <div class="glass-card rounded-3xl p-6 border border-slate-850 space-y-4">
+                    <h3 class="text-sm font-bold uppercase tracking-wider text-indigo-400 flex items-center gap-1.5 border-b border-slate-800 pb-3">
+                      <span><i data-lucide="plus-circle" class="w-4 h-4"></i></span>
+                      Cadastrar Novo Veículo (Viatura/Moto)
+                    </h3>
+                    
+                    <FormCadastrarViatura />
+
+                    <div class="mt-4 border-t border-slate-800/80 pt-4 space-y-2">
+                      <span class="text-3xs font-bold text-slate-500 uppercase tracking-widest block">Frota Cadastrada ({viaturas.length})</span>
+                      <div class="grid grid-cols-2 gap-2 max-h-[280px] overflow-y-auto pr-1">
+                        {viaturas.map(v => (
+                          <div key={v.prefixo} class="p-2.5 bg-slate-900/50 border border-slate-850 rounded-xl text-2xs flex justify-between items-center gap-2">
+                            <div>
+                              <p class="font-bold text-slate-200">{v.prefixo}</p>
+                              <p class="text-slate-500 mt-0.5">Tipo: {v.tipo}</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                              <span class={`px-1.5 py-0.5 rounded text-4xs font-bold uppercase shrink-0 ${
+                                v.status_atual === 'em_operacao' ? 'bg-emerald-500/10 text-emerald-400' : v.status_atual === 'baixada' ? 'bg-rose-500/10 text-rose-400' : 'bg-indigo-500/10 text-indigo-400'
+                              }`}>
+                                {v.status_atual}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => handleExcluirViatura(v.prefixo)}
+                                class="p-1 hover:bg-red-950/30 text-rose-450 hover:text-rose-400 rounded transition-all shrink-0"
+                                title="Excluir Veículo"
+                              >
+                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            )}
+
+            {/* ABA: SEGURANÇA E DISPOSITIVOS */}
+            {tab === 'seguranca' && (
+              <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start animate-fade-in">
+                
+                {/* COLUNA 1: GERADOR DE CÓDIGO DE ATIVAÇÃO */}
+                <div class="space-y-6 lg:col-span-1">
+                  <div class="glass-card rounded-3xl p-6 border border-slate-850 space-y-5 shadow-2xl">
+                    <h3 class="text-sm font-bold uppercase tracking-wider text-indigo-400 flex items-center gap-2 border-b border-slate-800 pb-3">
+                      <span><i data-lucide="key" class="w-4 h-4 text-indigo-400"></i></span>
+                      Ativar Novo Aparelho
+                    </h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                      Gere um código de ativação temporário de 6 dígitos. O agente deverá digitar este código e o UUID do aparelho no aplicativo móvel para autorizar o acesso.
+                    </p>
+
+                    <button
+                      onClick={handleGerarCodigo}
+                      class="btn-tactile w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white rounded-xl text-xs font-bold tracking-wider transition-all flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20"
+                    >
+                      <span><i data-lucide="plus-circle" class="w-4 h-4"></i></span>
+                      GERAR CÓDIGO DE ATIVAÇÃO
+                    </button>
+
+                    {codigoGerado && (
+                      <div class="p-5 bg-indigo-950/20 border border-indigo-500/20 rounded-2xl text-center space-y-3 animate-fade-in">
+                        <span class="text-4xs font-bold text-slate-500 uppercase tracking-widest block">Código de Ativação</span>
+                        <span class="text-4xl font-black font-outfit tracking-widest text-indigo-300 block select-all">
+                          {codigoGerado}
+                        </span>
+                        <div class="flex items-center justify-center gap-1.5 text-3xs font-bold text-amber-400 uppercase tracking-wider">
+                          <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping"></span>
+                          Expira em: {Math.floor(tempoRestanteCodigo / 60)}:{(tempoRestanteCodigo % 60).toString().padStart(2, '0')}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* COLUNA 2 e 3: AUDITORIA DE DISPOSITIVOS CADASTRADOS */}
+                <div class="space-y-6 lg:col-span-2">
+                  <div class="glass-card rounded-3xl p-6 border border-slate-850 space-y-4 shadow-2xl">
+                    <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                      <h3 class="text-sm font-bold uppercase tracking-wider text-indigo-400 flex items-center gap-2">
+                        <span><i data-lucide="smartphone" class="w-4 h-4 text-indigo-400"></i></span>
+                        Dispositivos Autorizados ({dispositivos.length})
+                      </h3>
+                      <span class="text-3xs font-semibold text-slate-500 uppercase tracking-widest">Controle de Acesso Móvel</span>
+                    </div>
+
+                    {dispositivos.length > 0 ? (
+                      <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                          <thead>
+                            <tr class="border-b border-slate-800/80 text-slate-500">
+                              <th class="pb-3 text-3xs font-bold uppercase tracking-wider">Aparelho</th>
+                              <th class="pb-3 text-3xs font-bold uppercase tracking-wider">ID Único (UUID)</th>
+                              <th class="pb-3 text-3xs font-bold uppercase tracking-wider">Data Cadastro</th>
+                              <th class="pb-3 text-3xs font-bold uppercase tracking-wider text-center">Status</th>
+                              <th class="pb-3 text-3xs font-bold uppercase tracking-wider text-right">Ação</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {dispositivos.map(dev => (
+                              <tr key={dev.uuid} class="border-b border-slate-900/60 hover:bg-slate-900/10 transition-colors">
+                                <td class="py-3.5 pr-2">
+                                  <div class="flex items-center gap-2">
+                                    <span class={`p-1.5 rounded-lg ${dev.status === 'autorizado' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'}`}>
+                                      <i data-lucide="smartphone" class="w-3.5 h-3.5"></i>
+                                    </span>
+                                    <span class="text-xs font-bold text-slate-200">{dev.nome}</span>
+                                  </div>
+                                </td>
+                                <td class="py-3.5 font-mono text-4xs text-slate-400 break-all select-all pr-2 max-w-[180px]">
+                                  {dev.uuid}
+                                </td>
+                                <td class="py-3.5 text-3xs text-slate-500">
+                                  {new Date(dev.data_cadastro).toLocaleString('pt-BR')}
+                                </td>
+                                <td class="py-3.5 text-center">
+                                  <span class={`px-2 py-0.5 rounded text-5xs font-black uppercase ${dev.status === 'autorizado' ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400' : 'bg-rose-500/10 border border-rose-500/20 text-rose-400'}`}>
+                                    {dev.status === 'autorizado' ? 'Ativo' : 'Bloqueado'}
+                                  </span>
+                                </td>
+                                <td class="py-3.5 text-right flex justify-end items-center gap-1.5">
+                                  {dev.status === 'autorizado' ? (
+                                    <button
+                                      onClick={() => handleBloquearDispositivo(dev.uuid)}
+                                      class="btn-tactile px-2.5 py-1.5 bg-rose-600/10 hover:bg-rose-600/20 text-rose-400 border border-rose-500/15 rounded-lg text-4xs font-bold transition-all"
+                                    >
+                                      BLOQUEAR
+                                    </button>
+                                  ) : (
+                                    <button
+                                      onClick={() => handleAutorizarDispositivo(dev.uuid, dev.nome)}
+                                      class="btn-tactile px-2.5 py-1.5 bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-400 border border-emerald-500/15 rounded-lg text-4xs font-bold transition-all"
+                                    >
+                                      AUTORIZAR
+                                    </button>
+                                  )}
+                                  <button
+                                    onClick={() => handleExcluirDispositivo(dev.uuid)}
+                                    class="btn-tactile p-1.5 bg-red-950/20 hover:bg-red-900/30 text-rose-400 border border-red-500/15 rounded-lg transition-all"
+                                    title="Excluir Permanentemente"
+                                  >
+                                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                  </button>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    ) : (
+                      <div class="text-center py-10 space-y-2">
+                        <div class="inline-flex p-3 bg-slate-900 border border-slate-800 text-slate-500 rounded-2xl">
+                          <i data-lucide="smartphone" class="w-6 h-6"></i>
+                        </div>
+                        <p class="text-xs text-slate-500 italic">Nenhum dispositivo móvel cadastrado ou autorizado no sistema.</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* BACKUP E RESTAURAÇÃO */}
+                <div class="glass-card rounded-3xl p-6 border border-slate-850 space-y-4 shadow-2xl lg:col-span-3">
+                  <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                    <h3 class="text-sm font-bold uppercase tracking-wider text-indigo-400 flex items-center gap-2">
+                      <span><i data-lucide="database" class="w-4 h-4 text-indigo-400"></i></span>
+                      Cópia de Segurança (Backup & Restauração)
+                    </h3>
+                    <span class="text-3xs font-semibold text-slate-500 uppercase tracking-widest">Proteção Contra Perda de Dados</span>
+                  </div>
+                  
+                  <p class="text-xs text-slate-400 leading-relaxed">
+                    Crie uma cópia de segurança completa contendo todos os dados cadastrados (materiais, agentes, viaturas, checklists de serviço, códigos e dispositivos autorizados). Você poderá usar o arquivo baixado para restaurar o sistema a qualquer momento caso os dados sejam corrompidos ou apagados.
+                  </p>
+
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                    {/* Bloco de Backup */}
+                    <div class="p-4 bg-slate-900/60 border border-slate-800 rounded-2xl flex flex-col justify-between gap-3">
+                      <div>
+                        <h4 class="text-xs font-bold text-slate-200 uppercase tracking-wider">Exportar Backup</h4>
+                        <p class="text-4xs text-slate-500 mt-1">Gera um arquivo JSON contendo a cópia atual do banco de dados para download seguro.</p>
+                      </div>
+                      <button
+                        onClick={handleDownloadBackup}
+                        disabled={fazendoBackup}
+                        class="btn-tactile w-full py-3 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white rounded-xl text-xs font-bold tracking-wider transition-all flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/10 disabled:opacity-50"
+                      >
+                        {fazendoBackup ? (
+                          <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        ) : (
+                          <>
+                            <span><i data-lucide="download" class="w-4 h-4"></i></span>
+                            <span>DOWNLOAD BACKUP (JSON)</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+
+                    {/* Bloco de Restauração */}
+                    <div class="p-4 bg-rose-950/10 border border-rose-900/25 rounded-2xl flex flex-col justify-between gap-3">
+                      <div>
+                        <h4 class="text-xs font-bold text-rose-450 uppercase tracking-wider">Importar & Restaurar</h4>
+                        <p class="text-4xs text-slate-500 mt-1">⚠️ ATENÇÃO: Carregar um arquivo de backup irá substituir todos os dados atuais do banco de dados por completo.</p>
+                      </div>
+                      <div>
+                        <input
+                          id="upload-backup-input"
+                          type="file"
+                          accept=".json"
+                          onChange={handleUploadBackup}
+                          class="hidden"
+                        />
+                        <button
+                          onClick={() => document.getElementById('upload-backup-input').click()}
+                          disabled={restaurandoBackup}
+                          class="btn-tactile w-full py-3 bg-rose-600 hover:bg-rose-500 active:bg-rose-700 text-white rounded-xl text-xs font-bold tracking-wider transition-all flex items-center justify-center gap-2 shadow-lg shadow-rose-600/10 disabled:opacity-50"
+                        >
+                          {restaurandoBackup ? (
+                            <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          ) : (
+                            <>
+                              <span><i data-lucide="upload" class="w-4 h-4"></i></span>
+                              <span>CARREGAR & RESTAURAR</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            )}
+
+          </main>
+
+          {/* MODAL EDITAR MANUTENÇÃO / TROCA DE ÓLEO */}
+          {modalManutencao && selectedVtr && (
+            <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+              <div class="glass-card w-full max-w-sm rounded-3xl p-6 space-y-5 shadow-2xl">
+                
+                <div class="flex justify-between items-center">
+                  <h3 class="text-lg font-bold font-outfit text-white flex items-center gap-2">
+                    <span><i data-lucide="tool" class="w-5 h-5 text-indigo-400"></i></span>
+                    Registrar Troca de Óleo
+                  </h3>
+                  <button onClick={() => setModalManutencao(false)} class="text-slate-400 hover:text-white">
+                    <span><i data-lucide="x" class="w-6 h-6"></i></span>
+                  </button>
+                </div>
+
+                <div class="p-3 bg-indigo-950/20 border border-indigo-500/15 rounded-2xl text-xs space-y-1.5 text-slate-300">
+                  <p>Viatura: <b class="text-white">{selectedVtr.prefixo}</b></p>
+                  <p>Odômetro Atual na Rua: <b class="text-white">{selectedVtr.odometro_atual} km</b></p>
+                  <p>Última Troca Registrada: <b class="text-white">{selectedVtr.regras_manutencao?.ultima_troca_oleo_odometro || 0} km</b></p>
+                </div>
+
+                <form onSubmit={handleRegistrarOleo} class="space-y-4">
+                  <div>
+                    <label class="block text-2xs font-bold text-slate-500 uppercase tracking-widest mb-1">Odômetro do Serviço (km)*</label>
+                    <input
+                      type="number"
+                      required
+                      placeholder="Ex: 45200"
+                      value={odoManutencao}
+                      onChange={(e) => setOdoManutencao(e.target.value)}
+                      class="glass-input w-full px-4 py-3 rounded-xl text-sm font-bold focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label class="block text-2xs font-bold text-slate-500 uppercase tracking-widest mb-1">Intervalo recomendado (km)*</label>
+                    <select
+                      value={intervaloManutencao}
+                      onChange={(e) => setIntervaloManutencao(e.target.value)}
+                      class="glass-input w-full px-3 py-3 rounded-xl text-sm font-bold focus:outline-none text-indigo-400"
+                    >
+                      <option value="1500">1.500 km (Uso Severo Moto)</option>
+                      <option value="3000">3.000 km (Padrão Moto / VTM)</option>
+                      <option value="5000">5.000 km (Padrão Carro / VTR)</option>
+                      <option value="10000">10.000 km (Sintético Longo)</option>
+                    </select>
+                  </div>
+
+                  <div class="grid grid-cols-2 gap-4 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setModalManutencao(false)}
+                      class="py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-sm transition-all"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="submit"
+                      class="py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-sm transition-all shadow-lg shadow-indigo-600/10"
+                    >
+                      Confirmar Troca
+                    </button>
+                  </div>
+                </form>
+
+              </div>
+            </div>
+          )}
+
+          {/* MODAL LIGHTBOX / EXPANSÃO DE FOTOS */}
+          {expandedPhoto && (
+            <div 
+              class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fade-in cursor-zoom-out"
+              onClick={() => setExpandedPhoto(null)}
+            >
+              <div class="relative max-w-4xl max-h-[85vh] w-full flex flex-col items-center">
+                <button 
+                  onClick={() => setExpandedPhoto(null)}
+                  class="absolute -top-12 right-0 p-2 bg-slate-900 border border-slate-800 text-slate-400 hover:text-white rounded-full transition-all"
+                >
+                  <span><i data-lucide="x" class="w-5 h-5"></i></span>
+                </button>
+                <img 
+                  src={expandedPhoto} 
+                  alt="Foto ampliada" 
+                  class="max-w-full max-h-[80vh] object-contain rounded-2xl border border-white/10 shadow-2xl" 
+                  onClick={(e) => e.stopPropagation()}
+                />
+              </div>
+            </div>
+          )}
+
+          <footer class="py-3 text-center text-xs text-slate-500 border-t border-slate-900 bg-[#04060d]">
+            Frota DEMUTRAN v1.0.0 (Painel do Controlador)
+          </footer>
+        </div>
+      );
+    }
+
+    // ==========================================
+    // COMPONENTE: FORM CADASTRO AGENTE
+    // ==========================================
+    function FormCadastrarAgente() {
+      const [matricula, setMatricula] = useState('');
+      const [nome, setNome] = useState('');
+      const [salvando, setSalvando] = useState(false);
+
+      const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!matricula.trim() || !nome.trim()) {
+          alert('Por favor, informe a matrícula e o nome.');
+          return;
+        }
+
+        setSalvando(true);
+        try {
+          await adicionarAgente(matricula.trim(), nome.trim());
+          setMatricula('');
+          setNome('');
+          alert('Agente operacional cadastrado com sucesso!');
+        } catch (err) {
+          alert(err.message || 'Erro ao cadastrar.');
+        } finally {
+          setSalvando(false);
+        }
+      };
+
+      return (
+        <form onSubmit={handleSubmit} class="space-y-3">
+          <div>
+            <label class="block text-2xs text-slate-500 mb-1">Matrícula (Apenas Números)</label>
+            <input
+              type="text"
+              required
+              placeholder="Ex: 100206"
+              value={matricula}
+              onChange={(e) => setMatricula(e.target.value.replace(/\D/g, ''))}
+              class="glass-input w-full px-3.5 py-2.5 rounded-xl text-xs focus:outline-none"
+            />
+          </div>
+          <div>
+            <label class="block text-2xs text-slate-500 mb-1">Nome Completo</label>
+            <input
+              type="text"
+              required
+              placeholder="Ex: Agente Costa"
+              value={nome}
+              onChange={(e) => setNome(e.target.value)}
+              class="glass-input w-full px-3.5 py-2.5 rounded-xl text-xs focus:outline-none"
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={salvando}
+            class="btn-tactile w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition-all shadow-md"
+          >
+            {salvando ? 'Salvando...' : 'CADASTRAR AGENTE'}
+          </button>
+        </form>
+      );
+    }
+
+    // ==========================================
+    // COMPONENTE: FORM CADASTRO SUPERVISOR
+    // ==========================================
+    function FormCadastrarSupervisor() {
+      const [email, setEmail] = useState('');
+      const [senha, setSenha] = useState('');
+      const [salvando, setSalvando] = useState(false);
+
+      const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!email.trim() || !senha.trim()) {
+          alert('Por favor, informe o e-mail e a senha.');
+          return;
+        }
+
+        setSalvando(true);
+        try {
+          await adicionarSupervisor(email.trim(), senha);
+          if (isDemoMode) {
+            alert('Controlador cadastrado localmente no Simulador!');
+          } else {
+            alert(`Controlador "${email.trim()}" cadastrado com sucesso no Firebase em nuvem!`);
+          }
+          setEmail('');
+          setSenha('');
+        } catch (err) {
+          alert('Erro ao cadastrar controlador: ' + (err.message || err));
+        } finally {
+          setSalvando(false);
+        }
+      };
+
+      return (
+        <form onSubmit={handleSubmit} class="space-y-3">
+          <div>
+            <label class="block text-2xs text-slate-500 mb-1">E-mail / Usuário de Acesso</label>
+            <input
+              type="text"
+              required
+              placeholder="Ex: controlador2@frota.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              class="glass-input w-full px-3.5 py-2.5 rounded-xl text-xs focus:outline-none"
+            />
+          </div>
+          <div>
+            <label class="block text-2xs text-slate-500 mb-1">Senha de Acesso</label>
+            <input
+              type="password"
+              required
+              placeholder="Ex: frota123"
+              value={senha}
+              onChange={(e) => setSenha(e.target.value)}
+              class="glass-input w-full px-3.5 py-2.5 rounded-xl text-xs focus:outline-none"
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={salvando}
+            class="btn-tactile w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition-all shadow-md"
+          >
+            {salvando ? 'Salvando...' : 'CADASTRAR CONTROLADOR'}
+          </button>
+        </form>
+      );
+    }
+
+    // ==========================================
+    // COMPONENTE: FORM CADASTRO VIATURA
+    // ==========================================
+    function FormCadastrarViatura() {
+      const [tipo, setTipo] = useState('VTR');
+      const [numero, setNumero] = useState('');
+      const [fotos, setFotos] = useState(['', '', '']);
+      const [loadingFotos, setLoadingFotos] = useState([false, false, false]);
+      const [salvando, setSalvando] = useState(false);
+
+      const handleFotoChange = (index, value) => {
+        const updated = [...fotos];
+        updated[index] = value;
+        setFotos(updated);
+      };
+
+      const handleUploadFoto = async (index, file) => {
+        if (!file) return;
+        setLoadingFotos(prev => {
+          const updated = [...prev];
+          updated[index] = true;
+          return updated;
+        });
+        try {
+          const url = await uploadFoto(file);
+          handleFotoChange(index, url);
+        } catch (err) {
+          alert('Erro ao carregar a foto: ' + err.message);
+        } finally {
+          setLoadingFotos(prev => {
+            const updated = [...prev];
+            updated[index] = false;
+            return updated;
+          });
+        }
+      };
+
+      const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!numero.trim()) {
+          alert('Por favor, informe o número da viatura.');
+          return;
+        }
+
+        const prefixo = `${tipo}-${numero.trim().padStart(2, '0')}`;
+        setSalvando(true);
+        try {
+          const fotosFiltradas = fotos.filter(f => f.trim() !== '');
+          await adicionarViatura(prefixo, tipo, fotosFiltradas);
+          setNumero('');
+          setFotos(['', '', '']);
+          alert(`Veículo ${prefixo} cadastrado com sucesso na frota!`);
+        } catch (err) {
+          alert(err.message || 'Erro ao cadastrar.');
+        } finally {
+          setSalvando(false);
+        }
+      };
+
+      return (
+        <form onSubmit={handleSubmit} class="space-y-3">
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-2xs text-slate-500 mb-1">Tipo</label>
+              <select
+                value={tipo}
+                onChange={(e) => setTipo(e.target.value)}
+                class="glass-input w-full px-3 py-2.5 rounded-xl text-xs focus:outline-none"
+              >
+                <option value="VTR">VTR (Carro)</option>
+                <option value="VTM">VTM (Moto)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-2xs text-slate-500 mb-1">Número do Veículo</label>
+              <input
+                type="text"
+                required
+                placeholder="Ex: 09"
+                value={numero}
+                onChange={(e) => setNumero(e.target.value.replace(/\D/g, ''))}
+                class="glass-input w-full px-3.5 py-2.5 rounded-xl text-xs focus:outline-none"
+              />
+            </div>
+          </div>
+          
+          <div class="space-y-2">
+            <label class="block text-2xs text-slate-500 font-bold uppercase tracking-wider mb-1">Fotos de Vistoria de Entrada</label>
+            <div class="grid grid-cols-3 gap-3">
+              {fotos.map((f, i) => {
+                const isLoading = loadingFotos[i];
+                return (
+                  <div key={i} class="relative flex flex-col items-center justify-center border border-dashed border-slate-700 bg-slate-900/30 rounded-2xl p-2 h-24 hover:bg-slate-900/50 transition-all">
+                    {isLoading ? (
+                      <div class="flex flex-col items-center justify-center gap-1">
+                        <div class="w-5 h-5 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin"></div>
+                        <span class="text-[8px] text-slate-400 uppercase font-bold">Enviando...</span>
+                      </div>
+                    ) : f ? (
+                      <div class="relative w-full h-full group overflow-hidden rounded-xl">
+                        <img
+                          src={f}
+                          alt={`Vistoria ${i+1}`}
+                          class="w-full h-full object-cover rounded-xl"
+                          onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&w=80&q=80'; }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleFotoChange(i, '')}
+                          class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-rose-400 font-bold text-2xs transition-all rounded-xl"
+                        >
+                          <span class="flex items-center gap-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                            Remover
+                          </span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleFotoChange(i, '')}
+                          class="absolute top-1 right-1 bg-rose-600/90 text-white rounded-full p-1 shadow hover:scale-105 active:scale-95 transition-all md:hidden"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-3 h-3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => document.getElementById(`foto-vistoria-input-${i}`).click()}
+                          class="w-full h-full flex flex-col items-center justify-center text-slate-400 gap-1 hover:text-indigo-400 transition-all btn-tactile"
+                        >
+                          <span class="p-1.5 bg-slate-900 border border-slate-800 rounded-xl text-slate-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M14.5 2H9.5L7 5H3a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h18a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-4z"/><circle cx="12" cy="13" r="3"/></svg>
+                          </span>
+                          <span class="text-[8px] uppercase font-bold tracking-wider">Foto {i+1}</span>
+                        </button>
+                        <input
+                          id={`foto-vistoria-input-${i}`}
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            if (e.target.files[0]) handleUploadFoto(i, e.target.files[0]);
+                          }}
+                          class="hidden"
+                        />
+                      </>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            disabled={salvando}
+            class="btn-tactile w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition-all shadow-md mt-2"
+          >
+            {salvando ? 'Salvando...' : 'CADASTRAR VEÍCULO'}
+          </button>
+        </form>
+      );
+    }
+
+    const rootElement = document.getElementById('root');
+    const root = ReactDOM.createRoot(rootElement);
+    root.render(<App />);
+  </script>
+</body>
+</html>

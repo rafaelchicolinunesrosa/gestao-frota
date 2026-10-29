@@ -1,0 +1,75 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Função auxiliar para verificar se o usuário é administrador (supervisor)
+    function isSupervisor() {
+      return request.auth != null && 
+        (request.auth.token.firebase.sign_in_provider == 'password' ||
+         ('email' in request.auth.token && exists(/databases/$(database)/documents/supervisores/$(request.auth.token.email))));
+    }
+
+    // Função auxiliar para verificar se o dispositivo do usuário anônimo está autorizado
+    function isAuthorizedDevice() {
+      return request.auth != null &&
+        exists(/databases/$(database)/documents/uids_autorizados/$(request.auth.uid)) &&
+        exists(/databases/$(database)/documents/dispositivos_autorizados/$(get(/databases/$(database)/documents/uids_autorizados/$(request.auth.uid)).data.device_uuid)) &&
+        get(/databases/$(database)/documents/dispositivos_autorizados/$(get(/databases/$(database)/documents/uids_autorizados/$(request.auth.uid)).data.device_uuid)).data.status == 'autorizado';
+    }
+
+    // Materiais: Apenas supervisores ou dispositivos autorizados leem e atualizam. Apenas supervisor cria/deleta.
+    match /materiais/{materialId} {
+      allow read, update: if isSupervisor() || isAuthorizedDevice();
+      allow create, delete: if isSupervisor();
+    }
+ 
+    // Agentes: Apenas supervisores ou dispositivos autorizados leem. Apenas supervisor escreve.
+    match /agentes/{agenteId} {
+      allow read: if isSupervisor() || isAuthorizedDevice();
+      allow write: if isSupervisor();
+    }
+ 
+    // Viaturas: Apenas supervisores ou dispositivos autorizados leem e atualizam. Apenas supervisor cria/deleta.
+    match /viaturas/{viaturaId} {
+      allow read, update: if isSupervisor() || isAuthorizedDevice();
+      allow create, delete: if isSupervisor();
+    }
+ 
+    // Checklists: Supervisores ou dispositivos autorizados podem ler, criar e atualizar. Apenas supervisor deleta.
+    match /checklists/{checklistId} {
+      allow read, create, update: if isSupervisor() || isAuthorizedDevice();
+      allow delete: if isSupervisor();
+    }
+ 
+    // Coleção de supervisores administradores: Acesso restrito a supervisores
+    match /supervisores/{email} {
+      allow read, write: if isSupervisor();
+    }
+
+    // Dispositivos Autorizados: Qualquer usuário autenticado lê individualmente seu status.
+    // Criação exige um código de ativação válido e ativo.
+    // Alteração e deleção apenas por supervisores.
+    match /dispositivos_autorizados/{deviceId} {
+      allow get: if request.auth != null;
+      allow list: if isSupervisor();
+      allow create: if request.auth != null && 
+        exists(/databases/$(database)/documents/codigos_ativacao/$(request.resource.data.codigo_usado)) &&
+        get(/databases/$(database)/documents/codigos_ativacao/$(request.resource.data.codigo_usado)).data.expira_em > request.time.toMillis();
+      allow update, delete: if isSupervisor();
+    }
+
+    // UIDs Autorizados: Vínculo de UID ao dispositivo. O próprio usuário lê e cria. Supervisor gerencia.
+    match /uids_autorizados/{uid} {
+      allow read: if request.auth != null && (request.auth.uid == uid || isSupervisor());
+      allow create: if request.auth != null && request.auth.uid == uid;
+      allow update, delete: if isSupervisor();
+    }
+
+    // Códigos de Ativação: Apenas usuários autenticados leem individualmente ou excluem (para consumo de código).
+    // Apenas supervisor pode listar ou criar/escrever.
+    match /codigos_ativacao/{codeId} {
+      allow get, delete: if request.auth != null;
+      allow list, write: if isSupervisor();
+    }
+  }
+}
